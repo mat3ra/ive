@@ -1,0 +1,60 @@
+{
+    "$id": "software-directory/modeling/espresso/arguments",
+    "properties": {
+        "arguments.npools": {
+            "ui:widget": "$val.SHOW_ADVANCED_OPTIONS",
+            "ui:title": "Kpoint Pools",
+            "ui:description": " ",
+            "ui:options": {
+                "infoPopover": {
+                    "title": "Kpoint Pools",
+                    "content": "Number of k-point pools used for parallelization (http://ow.ly/klu93042FfB)."
+                }
+            }
+        },
+        "arguments.nband": {
+            "ui:widget": "$val.SHOW_ADVANCED_OPTIONS",
+            "ui:title": "Band Pools",
+            "ui:description": " ",
+            "ui:options": {
+                "infoPopover": {
+                    "title": "Band Pools",
+                    "content": "Number of band pools used for parallelization (http://ow.ly/klu93042FfB)."
+                }
+            }
+        },
+        "arguments.ntg": {
+            "ui:widget": "$val.SHOW_ADVANCED_OPTIONS",
+            "ui:title": "FFT Task Groups",
+            "ui:description": " ",
+            "ui:options": {
+                "infoPopover": {
+                    "title": "FFT Task Groups",
+                    "content": "Number of FFT task groups used for parallelization (http://ow.ly/klu93042FfB)."
+                }
+            }
+        },
+        "arguments.nimage": {
+            "ui:widget": "$val.SHOW_ADVANCED_OPTIONS",
+            "ui:title": "Number of Images",
+            "ui:description": " ",
+            "ui:options": {
+                "infoPopover": {
+                    "title": "Number of Images",
+                    "content": "Number of images used for parallelization (http://ow.ly/klu93042FfB)."
+                }
+            }
+        },
+        "arguments.ndiag": {
+            "ui:widget": "$val.SHOW_ADVANCED_OPTIONS",
+            "ui:title": "Parallelization levels",
+            "ui:description": " ",
+            "ui:options": {
+                "infoPopover": {
+                    "title": "Parallelization levels",
+                    "content": "Number of parallel tasks for subspace diagonalization (http://ow.ly/klu93042FfB)."
+                }
+            }
+        }
+    }
+}
