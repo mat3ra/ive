@@ -16,7 +16,7 @@ import { StatusTrackTable } from "./StatusTrackTable";
 import EntityHeader from "@exabyte-io/cove.js/dist/mui-composed/components/entity-header/EntityHeader";
 
 const DropdownButton = styled("div")(({ theme }) => ({
-    border: `1px solid ${theme.palette.border.dark}`,
+    border: `1px solid ${theme.palette.border?.dark ?? theme.palette.divider}`,
     borderRadius: "4px",
     padding: theme.spacing(1),
     width: "40px",

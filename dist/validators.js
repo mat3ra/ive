@@ -1,13 +1,9 @@
 import { QUEUE_TYPES } from "@mat3ra/ide";
 import Ajv from "ajv";
 import s from "underscore.string";
-
 import { resolveJsonSchema } from "./utils/schemas";
-
 // TODO : should this move to infrastructure_ide
-
 const defaultCluster = { hostname: "localhost" };
-
 /**
  * @summary Mock method for BackendManager.getNodeByHostname
  * @param hostname {String} hostname
@@ -27,7 +23,6 @@ const getNodeByHostname = (hostname) => {
         ],
     };
 };
-
 /**
  * @summary Custom PPN validator
  * @param ppn {Number} processors per node
@@ -42,10 +37,10 @@ const validatePpn = (ppn, dataPath, data) => {
         ? node.queues.find((q) => q.name === queueName || q.NAME === queueName)
         : undefined;
     const maxPPN = queue ? queue.maxPPN || queue["MAX-PPN"] : 1;
-    if (ppn > maxPPN) return false;
+    if (ppn > maxPPN)
+        return false;
     return true;
 };
-
 const oneNodeQueueTypeList = [
     QUEUE_TYPES.debug,
     QUEUE_TYPES.ordinaryRegular,
@@ -57,7 +52,6 @@ const oneNodeQueueTypeList = [
     QUEUE_TYPES.savingRegular8,
     QUEUE_TYPES.savingRegular16,
 ];
-
 const maxTenNodesQueueTypeList = [
     QUEUE_TYPES.gpuOrdinaryFast,
     QUEUE_TYPES["4gpuOrdinaryFast"],
@@ -76,7 +70,6 @@ const maxTenNodesQueueTypeList = [
     QUEUE_TYPES.ordinaryFast,
     QUEUE_TYPES.ordinaryFastPlus,
 ];
-
 /**
  * @summary Custom node validator
  * @param nodes {Number} number of nodes
@@ -86,32 +79,25 @@ const maxTenNodesQueueTypeList = [
  */
 const validateNodes = (nodes, dataPath, data) => {
     const { queue } = data;
-
     if (oneNodeQueueTypeList.includes(queue) && nodes !== 1) {
         return false;
     }
-
     if (maxTenNodesQueueTypeList.includes(queue) && nodes > 10) {
         return false;
     }
-
     return true;
 };
-
 // TODO : should get available number of nodes from backend side
 export const getNodeNumber = (queueName) => {
     if (oneNodeQueueTypeList.includes(queueName)) {
         return 1;
     }
-
     if (maxTenNodesQueueTypeList.includes(queueName)) {
         return 10;
     }
 };
-
 const timeLimitRegex = /^([0-9][0-9])?:?[0-9]?[0-9][0-9]:[0-5][0-9]:[0-5][0-9]$/;
 const validateTimeLimit = (timeLimit) => Boolean(timeLimit.match(timeLimitRegex));
-
 /**
  * @summary Helper to merge compute schema with application's advanced compute schema
  * @param schema {Object} compute schema
@@ -120,7 +106,8 @@ const validateTimeLimit = (timeLimit) => Boolean(timeLimit.match(timeLimitRegex)
  */
 const updateComputeSchemaWithApplication = (schema, appName) => {
     // Guard: if schema has no properties (e.g. standalone mode), return as-is.
-    if (!schema?.properties) return schema;
+    if (!(schema === null || schema === void 0 ? void 0 : schema.properties))
+        return schema;
     const schemaIds = {
         espresso: "software-directory/modeling/espresso/arguments",
     };
@@ -128,7 +115,8 @@ const updateComputeSchemaWithApplication = (schema, appName) => {
     if (schemaId) {
         const argSchema = resolveJsonSchema(schemaId);
         schema.properties.arguments.properties = argSchema.properties;
-    } else {
+    }
+    else {
         const { arguments: args, ...properties } = schema.properties;
         return {
             ...schema,
@@ -139,25 +127,24 @@ const updateComputeSchemaWithApplication = (schema, appName) => {
     }
     return schema;
 };
-
 /**
  * @summary Gets a compatible JSON schema for replacing the simple schema
  * @param appName {String} application name with advanced compute options
  * @returns {*} the schema
  */
 const getComputeSchema = (appName) => {
+    var _a, _b;
     let schema = resolveJsonSchema("job/compute");
     schema = updateComputeSchemaWithApplication(schema, appName);
     // Guard: schema may be empty ({}) in standalone mode when ESSE registry lacks 'job/compute'
-    if (schema?.properties?.queue) {
+    if ((_a = schema === null || schema === void 0 ? void 0 : schema.properties) === null || _a === void 0 ? void 0 : _a.queue) {
         schema.properties.queue.enum = Object.values(QUEUE_TYPES);
     }
-    if (schema?.properties?.timeLimitType) {
+    if ((_b = schema === null || schema === void 0 ? void 0 : schema.properties) === null || _b === void 0 ? void 0 : _b.timeLimitType) {
         schema.properties.timeLimitType.enum = ["per single attempt", "compound"];
     }
     return schema;
 };
-
 /**
  * @summary Gets compute validator fully customized for compatibility with existing simple schema.
  *          Due to error messages being handled as a function of the internals of the current schema,
@@ -171,7 +158,6 @@ const getComputeValidator = (schema) => {
         ppn: "Max count exceeded",
         nodes: "Max node count for selected queue exceeded",
     };
-
     const ajv = new Ajv({ allErrors: true, verbose: true });
     ajv.addKeyword("validateTimeLimit", {
         type: "string",
@@ -180,7 +166,6 @@ const getComputeValidator = (schema) => {
     });
     ajv.addKeyword("validatePpn", { type: "integer", validate: validatePpn, schema: false });
     ajv.addKeyword("validateNodes", { type: "integer", validate: validateNodes, schema: false });
-
     /**
      * @summary Traverses the returned ajv object to determine which error message to display
      * @param obj {Object} returned object from ajv on validation failure
@@ -198,8 +183,6 @@ const getComputeValidator = (schema) => {
         }
         return { name, message };
     };
-
     return { validator: ajv.compile(schema), getErrorMessage };
 };
-
 export { getComputeSchema, getComputeValidator, getNodeByHostname, defaultCluster };

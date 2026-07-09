@@ -40,12 +40,12 @@ class Notify extends React.Component {
     constructor(props) {
         super(props);
 
-        const { notify, email, accountUsers } = this.props;
+        const { notify = "", email, accountUsers } = this.props;
 
         const emails = email ? email.split(",") : [];
 
-        const selectedUsers = accountUsers.filter((user) => {
-            return emails.includes(user.entity.email);
+        const selectedUsers = (accountUsers ?? []).filter((user) => {
+            return emails.includes(user?.entity?.email);
         });
 
         this.state = {

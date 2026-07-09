@@ -9,7 +9,16 @@ import React from "react";
 import { getNodeNumber } from "../validators";
 
 import { ClustersLoadHandler } from "../utils/clusters_load";
-import type Queue from "/imports/backend/nodes/cluster/queue";
+
+/** Minimal interface for queue objects passed from the host application. */
+export interface Queue {
+    name: string;
+    displayName: string;
+    maxAvailableNodect: number;
+    capacity: string;
+    load: number;
+    getETAClient: () => { display: string };
+}
 
 interface QueuesTableProps {
     queues: Queue[];
