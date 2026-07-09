@@ -1,0 +1,11 @@
+{
+    "$id": "job/compute/espresso",
+    "allOf": [
+        {
+            "$ref": "job/compute/base"
+        },
+        {
+            "$ref": "software-directory/modeling/espresso/arguments"
+        }
+    ]
+}

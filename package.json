@@ -1,0 +1,66 @@
+{
+    "name": "@mat3ra/ive",
+    "version": "0.0.0",
+    "description": "Infrastructure Viewer and Editor",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mat3ra/ive.git"
+    },
+    "bugs": {
+        "url": "https://github.com/mat3ra/ive/issues"
+    },
+    "homepage": "https://github.com/mat3ra/ive",
+    "main": "dist/exports.js",
+    "types": "dist/exports.d.ts",
+    "files": [
+        "/dist",
+        "/src",
+        "tsconfig.json"
+    ],
+    "scripts": {
+        "dev": "vite --port 3006",
+        "build": "tsc && npm run copy-css",
+        "build:standalone": "vite build",
+        "copy-css": "mkdir -p dist/stylesheets && cp src/stylesheets/* dist/stylesheets/ 2>/dev/null || true",
+        "transpile": "tsc",
+        "test": "node --import tsx --test tests/*.tests.ts",
+        "lint": "eslint src tests && prettier --check src tests"
+    },
+    "dependencies": {
+        "flat": "^5.0.2"
+    },
+    "peerDependencies": {
+        "@exabyte-io/cove.js": "*",
+        "@mat3ra/esse": "*",
+        "@mat3ra/ide": "*",
+        "react": "^17.0.0",
+        "react-dom": "^17.0.0"
+    },
+    "license": "Apache-2.0",
+    "devDependencies": {
+        "@emotion/babel-plugin": "^11.11.0",
+        "@emotion/react": "^11.11.0",
+        "@emotion/styled": "^11.11.0",
+        "@exabyte-io/cove.js": "2026.7.9-1",
+        "@mat3ra/esse": "2026.6.16-0",
+        "@mat3ra/ide": "2026.5.28-0",
+        "@mat3ra/tsconfig": "^2024.6.3-0",
+        "@mui/icons-material": "^5.11.9",
+        "@mui/lab": "^5.0.0-alpha.120",
+        "@mui/material": "^5.11.9",
+        "@mui/styles": "^5.11.9",
+        "@rjsf/validator-ajv8": "^5.1.0",
+        "@types/lodash": "^4.14.202",
+        "@types/node": "^20.11.30",
+        "@types/react": "^17.0.2",
+        "@types/react-dom": "^17.0.2",
+        "@vitejs/plugin-react": "^4.3.4",
+        "lodash": "^4.17.4",
+        "react": "^17.0.0",
+        "react-dom": "^17.0.0",
+        "tsx": "^4.22.4",
+        "typescript": "^5.6.6",
+        "vite": "^6.0.7",
+        "vite-plugin-node-polyfills": "^0.25.0"
+    }
+}
