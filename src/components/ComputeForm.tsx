@@ -50,7 +50,7 @@ export interface Account {
     [key: string]: any;
 }
 
-function RJSFPopover({ infoPopover }) {
+function RJSFPopover({ infoPopover }: { infoPopover: { title?: string; content?: string } }) {
     return (
         <PositionInfoPopover>
             <InfoPopover title={infoPopover?.title} iconSize="small">
@@ -64,7 +64,7 @@ function RJSFPopover({ infoPopover }) {
     );
 }
 
-function TitleField({ title, id }) {
+function TitleField({ title, id }: { title: string; id: string }) {
     return (
         <Typography id={id} variant="h6" mb={2}>
             {title}
@@ -72,7 +72,7 @@ function TitleField({ title, id }) {
     );
 }
 
-function LinkWidget(props) {
+function LinkWidget(props: Record<string, any>) {
     const { id, value, uiSchema, label } = props;
     const infoPopover = uiSchema["ui:options"]?.infoPopover;
 
@@ -90,14 +90,14 @@ function getDefaultCluster(clusters: ClusterNode[]) {
     return clusters.find((x) => x.isDefault) || clusters[0];
 }
 
-function QueueSelectWidget(props) {
+function QueueSelectWidget(props: Record<string, any>) {
     const { id, value, uiSchema, label, onChange } = props;
     const queues = uiSchema["ui:options"].queues ?? [];
     const infoPopover = uiSchema["ui:options"]?.infoPopover;
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
     const [open, setOpen] = React.useState(false);
 
-    const handleOpen = (event) => {
+    const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
         setOpen((prev) => !prev);
     };
@@ -106,12 +106,12 @@ function QueueSelectWidget(props) {
         setOpen(false);
     };
 
-    const handleSelect = (name) => {
+    const handleSelect = (name: string) => {
         onChange(name);
         setOpen((prev) => !prev);
     };
 
-    const selectedValue = queues.find((queue) => queue.name === value);
+    const selectedValue = queues.find((queue: Record<string, any>) => queue.name === value);
 
     return (
         <>
@@ -169,16 +169,16 @@ const GROUPS = [
     },
 ];
 
-const getPropsForGroup = (group, props) => {
+const getPropsForGroup = (group: { fields: string[] }, props: Record<string, any>) => {
     return {
         ...props,
         properties: props.properties.filter(
-            (p) => group.fields.some((f) => new RegExp(f).test(p.name)) && !p.hidden,
+            (p: Record<string, any>) => group.fields.some((f: string) => new RegExp(f).test(p.name)) && !p.hidden,
         ),
     };
 };
 
-function ObjectFieldTemplateWrapper(props) {
+function ObjectFieldTemplateWrapper(props: Record<string, any>) {
     return (
         <>
             {GROUPS.map((group, index) => {
@@ -189,7 +189,7 @@ function ObjectFieldTemplateWrapper(props) {
                 return (
                     // eslint-disable-next-line react/no-array-index-key
                     <Paper key={`${group.title}-${index}`} sx={{ mb: 3, p: 3 }}>
-                        <CustomObjectFieldTemplate {...childProps} title={group.title} />
+                        <CustomObjectFieldTemplate {...(childProps as any)} title={group.title} />
                     </Paper>
                 );
             })}
@@ -198,8 +198,8 @@ function ObjectFieldTemplateWrapper(props) {
 }
 
 function buildComputeFormJsonSchema(
-    initialSchema,
-    { clusterOptions, queueOptions, costUrl, selectedQueue, clusterStatusUrl },
+    initialSchema: Record<string, any>,
+    { clusterOptions, queueOptions, costUrl, selectedQueue, clusterStatusUrl }: Record<string, any>,
 ) {
     // Guard: standalone mode — ESSE schema registry has no 'job/compute' entry,
     // so initialSchema comes back as {}. Return it unchanged to avoid crashes.
@@ -209,19 +209,19 @@ function buildComputeFormJsonSchema(
     const { cluster, arguments: args } = initialSchema.properties;
     const flattenCluster = flatten(cluster.properties, {
         maxDepth: 1,
-        transformKey: (key) => `cluster.${key}`,
+        transformKey: (key: string) => `cluster.${key}`,
     });
     const flattenArguments = args
         ? flatten(args.properties, {
               maxDepth: 1,
-              transformKey: (key) => `arguments.${key}`,
+              transformKey: (key: string) => `arguments.${key}`,
           })
         : {};
 
     flattenCluster["cluster.fqdn"] = {
         ...flattenCluster["cluster.fqdn"],
-        enum: clusterOptions.map((item) => item.value),
-        enumNames: clusterOptions.map((item) => item.label),
+        enum: clusterOptions.map((item: Record<string, any>) => item.value),
+        enumNames: clusterOptions.map((item: Record<string, any>) => item.label),
     };
 
     const schema = {
@@ -232,8 +232,8 @@ function buildComputeFormJsonSchema(
             ...flattenArguments,
             queue: {
                 ...initialSchema.properties.queue,
-                enum: queueOptions.map((item) => item.value),
-                enumNames: queueOptions.map((item) => item.label),
+                enum: queueOptions.map((item: Record<string, any>) => item.value),
+                enumNames: queueOptions.map((item: Record<string, any>) => item.label),
             },
             nodes: {
                 ...initialSchema.properties.nodes,
@@ -324,7 +324,7 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
 
     getErrorMessage: any;
 
-    constructor(props) {
+    constructor(props: ComputeFormProps) {
         super(props);
 
         const formData = omitBy(flatten(props.compute ?? {}), (value) => {
@@ -337,21 +337,20 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
         };
         this.handleFormUpdate = this.handleFormUpdate.bind(this);
         this.onNotifyUpdate = this.onNotifyUpdate.bind(this);
-        const schema = getComputeSchema(props.appName);
-        const { validator, getErrorMessage } = getComputeValidator(schema);
+        this.schema = getComputeSchema(props.appName ?? "");
+        const { validator, getErrorMessage } = getComputeValidator(this.schema);
         this.validator = validator;
         this.getErrorMessage = getErrorMessage;
-        this.schema = schema;
-        this.computeUiSchema = resolveComputeUISchema(props.appName);
+        this.computeUiSchema = resolveComputeUISchema(props.appName ?? "");
     }
 
-    handleFormUpdate({ formData }) {
+    handleFormUpdate({ formData }: { formData: Record<string, any> }) {
         this.setState({ formData }, () => {
             this.updateForm();
         });
     }
 
-    onNotifyUpdate(notify) {
+    onNotifyUpdate(notify: Record<string, any>) {
         const { onUpdate } = this.props;
         const { formData } = this.state;
 
@@ -362,7 +361,7 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
         });
     }
 
-    getURLForChargesPerJodID(jid) {
+    getURLForChargesPerJodID(jid: string) {
         const { account } = this.props;
 
         // @ts-ignore
@@ -393,19 +392,19 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
         const { formData } = this.state;
         const { clusters } = this.props;
         const cluster = clusters.find((x) => x.hostname === formData["cluster.fqdn"]);
-        const queues = cluster ? cluster.queues.filter((q) => q.nodeLimit) : [];
+        const queues = cluster ? cluster.queues.filter((q: Record<string, any>) => q.nodeLimit) : [];
 
         return queues;
     }
 
-    customValidate = (data, errors) => {
+    customValidate = (data: Record<string, any>, errors: any) => {
         const node = this.getNode();
 
         if (this.validator({ ...data, node })) {
             return {};
         }
 
-        this.validator.errors.forEach((obj) => {
+        this.validator.errors.forEach((obj: Record<string, any>) => {
             const { params } = obj;
             const { name, message } = this.getErrorMessage(obj);
 
@@ -434,7 +433,7 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
         const queues = this.getClusterQueues();
 
         // sort queues based on the order in QUEUE_DISPLAY
-        return queues.sort((a, b) => {
+        return queues.sort((a: Record<string, any>, b: Record<string, any>) => {
             const arr = Object.keys(QUEUE_DISPLAY);
             return arr.indexOf(a.value) - arr.indexOf(b.value);
         });
@@ -467,12 +466,12 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
         const costUrl = this.getURLForChargesPerJodID(compute?.cluster?.jid);
 
         const selectedQueue = this.getClusterQueues().find(
-            (queue) => queue.name === formData.queue,
+            (queue: Record<string, any>) => queue.name === formData.queue,
         );
 
         const schemaParams = {
             clusterOptions: this.clusterOptions(),
-            queueOptions: this.queueOptions().map((q) => ({
+            queueOptions: this.queueOptions().map((q: Record<string, any>) => ({
                 label: q.displayName,
                 value: q.name,
             })),

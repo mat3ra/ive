@@ -10,6 +10,7 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
  * The library build (tsc) ignores this file entirely.
  */
 export default defineConfig({
+    base: "/ive/",
     plugins: [
         react({
             jsxImportSource: "@emotion/react",
