@@ -1,0 +1,119 @@
+{
+    "$id": "job/compute/base",
+    "properties": {
+        "queue": {
+            "ui:title": "Queue",
+            "ui:widget": "QueueSelectWidget",
+            "ui:disabled": "$val.DISABLE_FIELDS",
+            "ui:description": " ",
+            "ui:options": {
+                "queues": "$val.QUEUES_OPTIONS",
+                "infoPopover": {
+                    "title": "Queue",
+                    "content": "Submission queue where this calculation will be sent to. <a target='_blank' href='https://docs.mat3ra.com/infrastructure/resource/queues/'>Documentation is here.</a>"
+                }
+            }
+        },
+        "nodes": {
+            "ui:title": "Nodes",
+            "ui:widget": "updown",
+            "ui:disabled": "$val.DISABLE_FIELDS",
+            "ui:description": " ",
+            "ui:options": {
+                "infoPopover": {
+                    "title": "Number of Nodes",
+                    "content": "Number of compute nodes (servers) to use for this job."
+                }
+            }
+        },
+        "ppn": {
+            "ui:title": "Cores",
+            "ui:widget": "updown",
+            "ui:disabled": "$val.DISABLE_FIELDS",
+            "ui:description": " ",
+            "ui:options": {
+                "infoPopover": {
+                    "title": "Number of Cores",
+                    "content": "Number of Cores per compute node to use for this job."
+                }
+            }
+        },
+        "timeLimit": {
+            "ui:title": "Time Limit",
+            "ui:disabled": "$val.DISABLE_FIELDS",
+            "ui:description": " ",
+            "ui:options": {
+                "infoPopover": {
+                    "title": "Time Limit (HH:MM:SS)",
+                    "content": "Time limit for job execution. <br />H - hours, M - minutes, S - seconds.<br /><a target='_blank' href='https://docs.mat3ra.com/infrastructure/compute/parameters/'>Documentation is here.</a>"
+                }
+            }
+        },
+        "timeLimitType": {
+            "ui:title": "Time limit type",
+            "ui:description": " ",
+            "ui:options": {
+                "infoPopover": {
+                    "title": "Limit Type",
+                    "content": "Relevant for <a target='_blank' href='https://docs.mat3ra.com/infrastructure/resource/category/'>Saving Compute Category.</a> When set to &quot;compound&quot;, the total execution time will never exceed the time limit, even if job is restarted. By default time limit is per each run attempt."
+                }
+            }
+        },
+        "isRestartable": {
+            "ui:title": "Is restartable",
+            "ui:description": " "
+        },
+        "cluster.fqdn": {
+            "ui:title": "Cluster",
+            "ui:widget": "$val.CLUSTER_FQDN_WIDGET",
+            "ui:description": " ",
+            "ui:options": {
+                "infoPopover": {
+                    "title": "Clusters",
+                    "content": "Compute cluster to be used for this calculation."
+                }
+            }
+        },
+        "cluster.jid": {
+            "ui:title": "JobID",
+            "ui:disabled": true,
+            "ui:widget": "$val.CLUSTER_JID_WIDGET",
+            "ui:description": " ",
+            "ui:options": {
+                "infoPopover": {
+                    "title": "Job ID (JID)",
+                    "content": "Comprised of job number and cluster domain name separated by a dot. <a target='_blank' href='https://docs.mat3ra.com/jobs-cli/actions/check-status/#job-id-in-cli'>Job ID documentation.</a>"
+                }
+            }
+        },
+        "cluster.cost": {
+            "ui:title": "See cost information.",
+            "ui:widget": "$val.CLUSTER_COST_WIDGET",
+            "ui:options": {
+                "infoPopover": {
+                    "title": "Cost",
+                    "content": "Click to open list of charges and search for the present job."
+                }
+            }
+        },
+        "cluster.status": {
+            "ui:title": "See cluster status",
+            "ui:widget": "$val.CLUSTER_STATUS_DOC_WIDGET"
+        },
+        "compute.doc": {
+            "ui:title": "Compute documentation",
+            "ui:widget": "$val.CLUSTER_STATUS_DOC_WIDGET"
+        },
+        "ui:order": [
+            "timeLimit",
+            "timeLimitType",
+            "isRestartable",
+            "cluster.fqdn",
+            "cluster.jid",
+            "*"
+        ],
+        "ui:submitButtonOptions": {
+            "norender": true
+        }
+    }
+}

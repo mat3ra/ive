@@ -1,7 +1,8 @@
 node_modules/
-dist/
 build/
+*.tgz
 *.log
 .DS_Store
 *.tsbuildinfo
-*.tgz
+.nyc_output/
+coverage/
