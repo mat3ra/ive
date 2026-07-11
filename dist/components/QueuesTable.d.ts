@@ -16,4 +16,3 @@ interface QueuesTableProps {
 }
 export default function QueuesTable({ queues, onQueueClick }: QueuesTableProps): React.JSX.Element;
 export {};
-//# sourceMappingURL=QueuesTable.d.ts.map

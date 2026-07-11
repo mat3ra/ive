@@ -12,4 +12,3 @@ export namespace StatusTrackTable {
 }
 import React from "react";
 import PropTypes from "prop-types";
-//# sourceMappingURL=StatusTrackTable.d.ts.map

@@ -1,4 +1,4 @@
-export function getNodeNumber(queueName: any): 1 | 10;
+export function getNodeNumber(queueName: any): 1 | 10 | undefined;
 /**
  * @summary Gets a compatible JSON schema for replacing the simple schema
  * @param appName {String} application name with advanced compute options
@@ -12,7 +12,7 @@ export function getComputeSchema(appName: string): any;
  * @param schema {Object} the full schema (including advanced compute options if available)
  * @returns {{validator: ajv.ValidateFunction, getErrorMessage: ((function(*): ({name: *, message: string}))|*)}}
  */
-export function getComputeValidator(schema: any): {
+export function getComputeValidator(schema: Object): {
     validator: ajv.ValidateFunction;
     getErrorMessage: (((arg0: any) => ({
         name: any;
@@ -28,4 +28,3 @@ export function getNodeByHostname(hostname: string): any;
 export namespace defaultCluster {
     let hostname: string;
 }
-//# sourceMappingURL=validators.d.ts.map

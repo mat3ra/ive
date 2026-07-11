@@ -40,4 +40,3 @@ declare namespace Notify {
 }
 import React from "react";
 import PropTypes from "prop-types";
-//# sourceMappingURL=Notify.d.ts.map

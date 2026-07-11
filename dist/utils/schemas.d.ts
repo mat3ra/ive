@@ -4,4 +4,3 @@ import { UISchema, resolveJsonSchema } from "@exabyte-io/cove.js/dist/other/rjsf
  */
 export declare function resolveUISchema(schemaId: string): UISchema;
 export { UISchema, resolveJsonSchema };
-//# sourceMappingURL=schemas.d.ts.map
