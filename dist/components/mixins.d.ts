@@ -11,4 +11,3 @@ export function ComputableEntityMixin(superclass: any): {
     };
     [x: string]: any;
 };
-//# sourceMappingURL=mixins.d.ts.map

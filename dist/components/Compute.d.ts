@@ -33,7 +33,7 @@ declare namespace Compute {
         let editable_1: boolean;
         export { editable_1 as editable };
         export let showHeader: boolean;
-        let clusters_1: any[];
+        let clusters_1: never[];
         export { clusters_1 as clusters };
         let showComputeForm_1: boolean;
         export { showComputeForm_1 as showComputeForm };
@@ -43,4 +43,3 @@ declare namespace Compute {
 }
 import React from "react";
 import PropTypes from "prop-types";
-//# sourceMappingURL=Compute.d.ts.map

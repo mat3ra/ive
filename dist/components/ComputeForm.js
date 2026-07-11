@@ -198,7 +198,7 @@ function resolveComputeUISchema(appName) {
 }
 export class ComputeForm extends React.Component {
     constructor(props) {
-        var _a;
+        var _a, _b, _c;
         super(props);
         this.getNode = () => {
             var _a;
@@ -235,12 +235,11 @@ export class ComputeForm extends React.Component {
         };
         this.handleFormUpdate = this.handleFormUpdate.bind(this);
         this.onNotifyUpdate = this.onNotifyUpdate.bind(this);
-        const schema = getComputeSchema(props.appName);
-        const { validator, getErrorMessage } = getComputeValidator(schema);
+        this.schema = getComputeSchema((_b = props.appName) !== null && _b !== void 0 ? _b : "");
+        const { validator, getErrorMessage } = getComputeValidator(this.schema);
         this.validator = validator;
         this.getErrorMessage = getErrorMessage;
-        this.schema = schema;
-        this.computeUiSchema = resolveComputeUISchema(props.appName);
+        this.computeUiSchema = resolveComputeUISchema((_c = props.appName) !== null && _c !== void 0 ? _c : "");
     }
     handleFormUpdate({ formData }) {
         this.setState({ formData }, () => {

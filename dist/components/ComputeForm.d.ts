@@ -36,15 +36,15 @@ export declare class ComputeForm extends React.Component<ComputeFormProps, Compu
     schema: JSONSchema7;
     validator: any;
     getErrorMessage: any;
-    constructor(props: any);
+    constructor(props: ComputeFormProps);
     handleFormUpdate({ formData }: {
-        formData: any;
+        formData: Record<string, any>;
     }): void;
-    onNotifyUpdate(notify: any): void;
-    getURLForChargesPerJodID(jid: any): any;
-    getNode: () => ClusterNode;
+    onNotifyUpdate(notify: Record<string, any>): void;
+    getURLForChargesPerJodID(jid: string): any;
+    getNode: () => ClusterNode | undefined;
     getClusterQueues(): any;
-    customValidate: (data: any, errors: any) => any;
+    customValidate: (data: Record<string, any>, errors: any) => any;
     clusterOptions(): {
         label: any;
         value: any;
@@ -54,4 +54,3 @@ export declare class ComputeForm extends React.Component<ComputeFormProps, Compu
     render(): React.JSX.Element;
 }
 export {};
-//# sourceMappingURL=ComputeForm.d.ts.map

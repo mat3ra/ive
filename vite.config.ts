@@ -23,12 +23,19 @@ export default defineConfig({
     define: {
         __dirname: JSON.stringify(__dirname),
     },
+    optimizeDeps: {
+        include: ["moment", "moment-duration-format"],
+    },
     server: {
         port: 3006,
     },
     resolve: {
         dedupe: ["@mat3ra/esse", "@mui/material", "@mui/styles", "@emotion/react", "@emotion/styled"],
         alias: [
+            {
+                find: /^moment$/,
+                replacement: path.resolve(__dirname, "node_modules/moment/moment.js"),
+            },
             {
                 find: /^vite-plugin-node-polyfills\/shims\/(.*)$/,
                 replacement: path.resolve(__dirname, "node_modules/vite-plugin-node-polyfills/shims/$1"),
@@ -40,10 +47,6 @@ export default defineConfig({
             {
                 find: /^@mat3ra\/ive\/dist\/(.*)$/,
                 replacement: path.resolve(__dirname, "src/$1"),
-            },
-            {
-                find: "moment-duration-format",
-                replacement: path.resolve(__dirname, "src/standalone/stubs/moment-duration-format.js"),
             },
             // MUI ESM fixes
             {
