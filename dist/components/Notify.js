@@ -20,7 +20,7 @@ import Typography from "@mui/material/Typography";
 import setClass from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
-import AccountCard from "@mat3ra/cove.js/dist/mui-composed/components/account/AccountCard";
+import AccountCard from "@mat3ra/cove/dist/mui-composed/components/account/AccountCard";
 const IS_BEGIN = "isBegin";
 const IS_ABORT = "isAbort";
 const IS_END = "isEnd";
