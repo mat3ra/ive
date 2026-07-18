@@ -2,9 +2,9 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 /* eslint-disable react/require-default-props */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react/prop-types */
-import Dropdown from "@exabyte-io/cove.js/dist/mui/components/dropdown";
-import IconByName from "@exabyte-io/cove.js/dist/mui/components/icon/IconByName";
-import { showWarningAlert } from "@exabyte-io/cove.js/dist/other/alerts";
+import Dropdown from "@mat3ra/cove.js/dist/mui/components/dropdown";
+import IconByName from "@mat3ra/cove.js/dist/mui/components/icon/IconByName";
+import { showWarningAlert } from "@mat3ra/cove.js/dist/other/alerts";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 import setClass from "classnames";
@@ -12,7 +12,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import { ComputeForm } from "./ComputeForm";
 import { StatusTrackTable } from "./StatusTrackTable";
-import EntityHeader from "@exabyte-io/cove.js/dist/mui-composed/components/entity-header/EntityHeader";
+import EntityHeader from "@mat3ra/cove.js/dist/mui-composed/components/entity-header/EntityHeader";
 const DropdownButton = styled("div")(({ theme }) => {
     var _a, _b;
     return ({

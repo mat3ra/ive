@@ -1,4 +1,4 @@
-import { UISchema, resolveJsonSchema } from "@exabyte-io/cove.js/dist/other/rjsf/schemaUtils";
+import { UISchema, resolveJsonSchema } from "@mat3ra/cove.js/dist/other/rjsf/schemaUtils";
 /**
  * Resolve a UI schema by ID from this package's local registry.
  */
