@@ -2,8 +2,8 @@ import {
     UISchema,
     resolveJsonSchema,
     resolveUISchema as coveResolveUISchema,
-} from "@exabyte-io/cove.js/dist/other/rjsf/schemaUtils";
-import type { UISchemaRegistry } from "@exabyte-io/cove.js/dist/other/rjsf/schemaUtils";
+} from "@mat3ra/cove/dist/other/rjsf/schemaUtils";
+import type { UISchemaRegistry } from "@mat3ra/cove/dist/other/rjsf/schemaUtils";
 
 import computeBase from "../schemas/ui/compute_base.json";
 import computeEspresso from "../schemas/ui/compute_espresso.json";

@@ -18,7 +18,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
 
 import Compute from "../components/Compute";
-import ThemeProvider from "@exabyte-io/cove.js/dist/theme/provider/ThemeProvider";
+import ThemeProvider from "@mat3ra/cove/dist/theme/provider/ThemeProvider";
 
 // Register all ESSE schemas
 JSONSchemasInterface.setSchemas(esseSchemas as unknown as JSONSchema7[]);

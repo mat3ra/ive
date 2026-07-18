@@ -5,13 +5,13 @@ import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-run
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable react/prop-types */
-import InfoPopover from "@exabyte-io/cove.js/dist/mui/components/popover/info-popover";
-import RJSForm from "@exabyte-io/cove.js/dist/other/rjsf/RJSForm";
-import CustomObjectFieldTemplate from "@exabyte-io/cove.js/dist/other/rjsf/templates/CustomObjectFieldTemplate";
-import InputWithInfoPopover from "@exabyte-io/cove.js/dist/other/rjsf/widgets/InputWithInfoPopover";
-import { PositionInfoPopover } from "@exabyte-io/cove.js/dist/other/rjsf/widgets/PositionInfoPopover.styled";
-import SelectWithInfoPopover from "@exabyte-io/cove.js/dist/other/rjsf/widgets/SelectWithInfoPopover";
-import TimePicker from "@exabyte-io/cove.js/dist/other/rjsf/widgets/TimePicker";
+import InfoPopover from "@mat3ra/cove/dist/mui/components/popover/info-popover";
+import RJSForm from "@mat3ra/cove/dist/other/rjsf/RJSForm";
+import CustomObjectFieldTemplate from "@mat3ra/cove/dist/other/rjsf/templates/CustomObjectFieldTemplate";
+import InputWithInfoPopover from "@mat3ra/cove/dist/other/rjsf/widgets/InputWithInfoPopover";
+import { PositionInfoPopover } from "@mat3ra/cove/dist/other/rjsf/widgets/PositionInfoPopover.styled";
+import SelectWithInfoPopover from "@mat3ra/cove/dist/other/rjsf/widgets/SelectWithInfoPopover";
+import TimePicker from "@mat3ra/cove/dist/other/rjsf/widgets/TimePicker";
 import { QUEUE_DISPLAY } from "@mat3ra/ide";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -29,7 +29,7 @@ import React from "react";
 import { getComputeSchema, getComputeValidator } from "../validators";
 import Notify from "./Notify";
 import QueuesTable from "./QueuesTable";
-import { LoadingIndicator } from "@exabyte-io/cove.js/dist/mui-composed/components/loading/LoadingIndicator";
+import { LoadingIndicator } from "@mat3ra/cove/dist/mui-composed/components/loading/LoadingIndicator";
 import { resolveUISchema } from "../utils/schemas";
 function RJSFPopover({ infoPopover }) {
     return (_jsx(PositionInfoPopover, { children: _jsx(InfoPopover, { title: infoPopover === null || infoPopover === void 0 ? void 0 : infoPopover.title, iconSize: "small", children: _jsx(Typography, { variant: "body2", pb: 2, dangerouslySetInnerHTML: { __html: (infoPopover === null || infoPopover === void 0 ? void 0 : infoPopover.content) || "" } }) }) }));

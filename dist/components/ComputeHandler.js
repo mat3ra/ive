@@ -1,4 +1,4 @@
-import { StatefulEntityMixin } from "@exabyte-io/cove.js/dist/mixins/statefulEntityMixin";
+import { StatefulEntityMixin } from "@mat3ra/cove/dist/mixins/statefulEntityMixin";
 export const ComputeHandlerForStatefulEntityMixin = (superclass) => class extends StatefulEntityMixin(superclass) {
     constructor(props) {
         super(props);
