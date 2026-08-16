@@ -27,6 +27,7 @@ import isObject from "lodash/isObject";
 import omitBy from "lodash/omitBy";
 import React from "react";
 import { getComputeSchema, getComputeValidator } from "../validators";
+import { shouldShowFieldError, withTouchedField } from "../utils/touchedFields";
 import Notify from "./Notify";
 import QueuesTable from "./QueuesTable";
 import { LoadingIndicator } from "@mat3ra/cove/dist/mui-composed/components/loading/LoadingIndicator";
@@ -213,10 +214,19 @@ export class ComputeForm extends React.Component {
             if (this.validator({ ...data, node })) {
                 return {};
             }
+            const { showAllErrors = false } = this.props;
+            const { touchedFields } = this.state;
             this.validator.errors.forEach((obj) => {
                 var _a, _b;
                 const { params } = obj;
                 const { name, message } = this.getErrorMessage(obj);
+                const fieldName = params.missingProperty || name;
+                // The form validates live, so without this every required field
+                // reports itself on first paint — before the reader has had a chance
+                // to fill anything in.
+                if (!shouldShowFieldError({ fieldName, touchedFields, showAllErrors })) {
+                    return;
+                }
                 if (params.missingProperty) {
                     (_a = errors[params.missingProperty]) === null || _a === void 0 ? void 0 : _a.addError("The field is required");
                 }
@@ -232,6 +242,7 @@ export class ComputeForm extends React.Component {
         });
         this.state = {
             formData,
+            touchedFields: new Set(),
         };
         this.handleFormUpdate = this.handleFormUpdate.bind(this);
         this.onNotifyUpdate = this.onNotifyUpdate.bind(this);
@@ -241,8 +252,16 @@ export class ComputeForm extends React.Component {
         this.getErrorMessage = getErrorMessage;
         this.computeUiSchema = resolveComputeUISchema((_c = props.appName) !== null && _c !== void 0 ? _c : "");
     }
-    handleFormUpdate({ formData }) {
-        this.setState({ formData }, () => {
+    /**
+     * `fieldId` is RJSF's id for the field that changed. It is what makes
+     * progressive validation possible: errors stay hidden until the reader has
+     * been to the field in question.
+     */
+    handleFormUpdate({ formData }, fieldId) {
+        this.setState((previousState) => ({
+            formData,
+            touchedFields: withTouchedField(previousState.touchedFields, fieldId),
+        }), () => {
             this.updateForm();
         });
     }
@@ -300,7 +319,7 @@ export class ComputeForm extends React.Component {
     }
     render() {
         var _a;
-        const { editable, showAdvancedOptions, user, accountUsers, isAccountUsersLoading, compute, gridParams, pathForClusters, } = this.props;
+        const { editable, showAdvancedOptions, user, accountUsers, isAccountUsersLoading, compute, gridParams, pathForClusters, showAllErrors = false, } = this.props;
         const { formData } = this.state;
         const disableFields = !editable;
         const costUrl = this.getURLForChargesPerJodID((_a = compute === null || compute === void 0 ? void 0 : compute.cluster) === null || _a === void 0 ? void 0 : _a.jid);
@@ -325,6 +344,12 @@ export class ComputeForm extends React.Component {
             CLUSTER_STATUS_DOC_WIDGET: disableFields ? "hidden" : LinkWidget,
             QUEUES_OPTIONS: this.queueOptions(),
         });
-        return (_jsx(Box, { sx: { display: "flex" }, id: "compute-step-form", children: _jsx(Box, { sx: { flexGrow: 1 }, children: _jsxs(Grid, { container: true, children: [_jsx(Grid, { item: true, p: 2, ...((gridParams === null || gridParams === void 0 ? void 0 : gridParams.left) || DEFAULT_GRID_PARAMS.left), children: _jsx(RJSForm, { schema: finalSchema, uiSchema: uiSchema, validator: rjsfValidator, formData: formData, onChange: (event) => this.handleFormUpdate(event), showErrorList: false, customValidate: this.customValidate, liveValidate: true, widgets: WIDGETS, templates: TEMPLATES }) }), _jsx(Grid, { item: true, p: 2, ...((gridParams === null || gridParams === void 0 ? void 0 : gridParams.right) || DEFAULT_GRID_PARAMS.right), children: isAccountUsersLoading ? (_jsx(LoadingIndicator, { size: "small", included: true }, "loading-indicator")) : (_jsx(Notify, { user: user, accountUsers: accountUsers, editable: editable, onUpdate: this.onNotifyUpdate, notify: formData.notify, email: formData.email })) })] }) }) }));
+        return (_jsx(Box, { sx: { display: "flex" }, id: "compute-step-form", children: _jsx(Box, { sx: { flexGrow: 1 }, children: _jsxs(Grid, { container: true, children: [_jsx(Grid, { item: true, p: 2, ...((gridParams === null || gridParams === void 0 ? void 0 : gridParams.left) || DEFAULT_GRID_PARAMS.left), children: _jsx(RJSForm
+                            // RJSF only re-validates when its schema or form data
+                            // change, so flipping `showAllErrors` alone would leave
+                            // the previous validation result on screen. Remounting
+                            // forces a fresh pass; the toggle happens on submit, not
+                            // while typing, so the cost is not felt.
+                            , { schema: finalSchema, uiSchema: uiSchema, validator: rjsfValidator, formData: formData, onChange: (event, fieldId) => this.handleFormUpdate(event, fieldId), showErrorList: false, customValidate: this.customValidate, liveValidate: true, widgets: WIDGETS, templates: TEMPLATES }, showAllErrors ? "show-all-errors" : "progressive") }), _jsx(Grid, { item: true, p: 2, ...((gridParams === null || gridParams === void 0 ? void 0 : gridParams.right) || DEFAULT_GRID_PARAMS.right), children: isAccountUsersLoading ? (_jsx(LoadingIndicator, { size: "small", included: true }, "loading-indicator")) : (_jsx(Notify, { user: user, accountUsers: accountUsers, editable: editable, onUpdate: this.onNotifyUpdate, notify: formData.notify, email: formData.email })) })] }) }) }));
     }
 }

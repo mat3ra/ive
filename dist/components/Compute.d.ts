@@ -28,6 +28,7 @@ declare namespace Compute {
         let showStatusTrack: PropTypes.Requireable<boolean>;
         let showAdvancedOptions: PropTypes.Requireable<boolean>;
         let accountUsers: PropTypes.Requireable<any[]>;
+        let showAllErrors: PropTypes.Requireable<boolean>;
     }
     namespace defaultProps {
         let editable_1: boolean;
