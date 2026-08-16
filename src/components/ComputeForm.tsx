@@ -28,6 +28,7 @@ import omitBy from "lodash/omitBy";
 import React from "react";
 
 import { getComputeSchema, getComputeValidator } from "../validators";
+import { shouldShowFieldError, withTouchedField } from "../utils/touchedFields";
 import Notify from "./Notify";
 import QueuesTable from "./QueuesTable";
 
@@ -309,10 +310,19 @@ interface ComputeFormProps {
     onUpdate: (s: string) => void;
     appName?: string;
     pathForClusters?: string;
+    /**
+     * Reveals every validation error at once, including for fields the reader
+     * has not touched. Off by default: a form the reader has not filled in yet
+     * should not open by listing everything wrong with it. Turn it on when the
+     * whole form has to answer for itself — on submit, or from a preflight check.
+     */
+    showAllErrors?: boolean;
 }
 
 interface ComputeFormState {
     formData: any;
+    /** Form-data keys the reader has edited; see `utils/touchedFields`. */
+    touchedFields: ReadonlySet<string>;
 }
 
 export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormState> {
@@ -334,6 +344,7 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
 
         this.state = {
             formData,
+            touchedFields: new Set<string>(),
         };
         this.handleFormUpdate = this.handleFormUpdate.bind(this);
         this.onNotifyUpdate = this.onNotifyUpdate.bind(this);
@@ -344,10 +355,21 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
         this.computeUiSchema = resolveComputeUISchema(props.appName ?? "");
     }
 
-    handleFormUpdate({ formData }: { formData: Record<string, any> }) {
-        this.setState({ formData }, () => {
-            this.updateForm();
-        });
+    /**
+     * `fieldId` is RJSF's id for the field that changed. It is what makes
+     * progressive validation possible: errors stay hidden until the reader has
+     * been to the field in question.
+     */
+    handleFormUpdate({ formData }: { formData: Record<string, any> }, fieldId?: string) {
+        this.setState(
+            (previousState) => ({
+                formData,
+                touchedFields: withTouchedField(previousState.touchedFields, fieldId),
+            }),
+            () => {
+                this.updateForm();
+            },
+        );
     }
 
     onNotifyUpdate(notify: Record<string, any>) {
@@ -404,9 +426,20 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
             return {};
         }
 
+        const { showAllErrors = false } = this.props;
+        const { touchedFields } = this.state;
+
         this.validator.errors.forEach((obj: Record<string, any>) => {
             const { params } = obj;
             const { name, message } = this.getErrorMessage(obj);
+            const fieldName = params.missingProperty || name;
+
+            // The form validates live, so without this every required field
+            // reports itself on first paint — before the reader has had a chance
+            // to fill anything in.
+            if (!shouldShowFieldError({ fieldName, touchedFields, showAllErrors })) {
+                return;
+            }
 
             if (params.missingProperty) {
                 errors[params.missingProperty]?.addError("The field is required");
@@ -459,6 +492,7 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
             compute,
             gridParams,
             pathForClusters,
+            showAllErrors = false,
         } = this.props;
         const { formData } = this.state;
         const disableFields = !editable;
@@ -498,11 +532,19 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
                     <Grid container>
                         <Grid item p={2} {...(gridParams?.left || DEFAULT_GRID_PARAMS.left)}>
                             <RJSForm
+                                // RJSF only re-validates when its schema or form data
+                                // change, so flipping `showAllErrors` alone would leave
+                                // the previous validation result on screen. Remounting
+                                // forces a fresh pass; the toggle happens on submit, not
+                                // while typing, so the cost is not felt.
+                                key={showAllErrors ? "show-all-errors" : "progressive"}
                                 schema={finalSchema as any}
                                 uiSchema={uiSchema}
                                 validator={rjsfValidator}
                                 formData={formData}
-                                onChange={(event: any) => this.handleFormUpdate(event)}
+                                onChange={(event: any, fieldId?: string) =>
+                                    this.handleFormUpdate(event, fieldId)
+                                }
                                 showErrorList={false}
                                 customValidate={this.customValidate}
                                 liveValidate

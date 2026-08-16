@@ -88,6 +88,7 @@ class Compute extends React.Component {
             showAdvancedOptions,
             accountUsers,
             isAccountUsersLoading,
+            showAllErrors,
         } = this.props;
 
         return (
@@ -126,6 +127,7 @@ class Compute extends React.Component {
                         showAdvancedOptions={showAdvancedOptions}
                         accountUsers={accountUsers}
                         isAccountUsersLoading={isAccountUsersLoading}
+                        showAllErrors={showAllErrors}
                     />
                 )}
                 {this.showStatusTrack && (
@@ -150,6 +152,8 @@ Compute.propTypes = {
     showStatusTrack: PropTypes.bool,
     showAdvancedOptions: PropTypes.bool,
     accountUsers: PropTypes.array,
+    /** Reveal every validation error, not just those for fields already touched. */
+    showAllErrors: PropTypes.bool,
 };
 
 Compute.defaultProps = {

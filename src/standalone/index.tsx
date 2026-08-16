@@ -177,6 +177,23 @@ function App() {
     const [compute, setCompute] = useState(defaultComputeConfig);
     const [jsonInput, setJsonInput] = useState(JSON.stringify(defaultComputeConfig, null, 2));
     const [jsonError, setJsonError] = useState("");
+    const [showAllErrors, setShowAllErrors] = useState(false);
+    // Remount key: clearing the form has to reset the touched-field state too,
+    // otherwise the previous session's touches keep their errors on screen.
+    const [computeInstanceKey, setComputeInstanceKey] = useState(0);
+
+    /**
+     * The state a brand-new job actually starts in. Worth one click in the demo:
+     * it is the case progressive validation exists for, and the one where the
+     * form used to open on a wall of "The field is required".
+     */
+    const loadEmptyCompute = useCallback(() => {
+        const emptyCompute = { cluster: {}, arguments: {} };
+        setCompute(emptyCompute as typeof defaultComputeConfig);
+        setJsonInput(JSON.stringify(emptyCompute, null, 2));
+        setJsonError("");
+        setComputeInstanceKey((previousKey) => previousKey + 1);
+    }, []);
 
     const mockJob = useMemo(() => {
         return {
@@ -205,6 +222,10 @@ function App() {
             const parsed = JSON.parse(jsonInput);
             setCompute(parsed);
             setJsonError("");
+            // ComputeForm derives its form data once, in its constructor, so a new
+            // `compute` prop alone is invisible to it — loading JSON did nothing to
+            // the form without this remount.
+            setComputeInstanceKey((previousKey) => previousKey + 1);
         } catch (e: any) {
             setJsonError(e.message);
         }
@@ -256,6 +277,20 @@ function App() {
                             }
                             label="Editable"
                         />
+                        {/* Progressive validation: an untouched form stays quiet until
+                            something downstream (submit, preflight) demands the full picture. */}
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={showAllErrors}
+                                    onChange={(e) => setShowAllErrors(e.target.checked)}
+                                />
+                            }
+                            label="Show all errors"
+                        />
+                        <Button size="small" onClick={loadEmptyCompute}>
+                            Start empty
+                        </Button>
                     </Stack>
                 </Stack>
 
@@ -264,6 +299,7 @@ function App() {
                     {/* Left Pane: Interactive Form */}
                     <Box sx={{ flexGrow: 1, p: 3, maxWidth: "65%", overflowY: "auto" }}>
                         <Compute
+                            key={computeInstanceKey}
                             compute={compute}
                             user={mockUser}
                             account={mockAccount}
@@ -275,6 +311,7 @@ function App() {
                             accountUsers={mockAccountUsers}
                             isAccountUsersLoading={false}
                             showHeader
+                            showAllErrors={showAllErrors}
                         />
                     </Box>
 
