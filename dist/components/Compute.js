@@ -65,8 +65,8 @@ class Compute extends React.Component {
         return Boolean(showStatusTrack && job.statusTrack && job.statusTrack.length);
     }
     render() {
-        const { className, showHeader, isLoading, adjustable, editable, showComputeForm, compute, user, account, clusters, onUpdate, job, showAdvancedOptions, accountUsers, isAccountUsersLoading, showAllErrors, } = this.props;
-        return (_jsxs("div", { className: setClass(className, "wizard-step", "compute-step"), children: [showHeader ? (_jsxs(EntityHeaderContainer, { children: [_jsx(EntityHeader, { name: "Compute", subtitle: "Runtime configuration parameters", icon: "pages.compute", isLoading: isLoading, editable: false, adjustable: true, isDescriptionEditorHidden: true }), adjustable || editable ? (_jsx(AutoSetActionContainer, { children: _jsx(Dropdown, { className: "pull-right", actions: this.getDropdownAction(), children: _jsx(DropdownButton, { children: _jsx(IconByName, { name: "shapes.dots.vertical" }) }) }) })) : null] })) : null, showComputeForm && (_jsx(ComputeForm, { editable: editable, compute: compute, user: user, account: account, clusters: clusters, onUpdate: onUpdate, appName: job.workflow.usedApplicationNames[0], showAdvancedOptions: showAdvancedOptions, accountUsers: accountUsers, isAccountUsersLoading: isAccountUsersLoading, showAllErrors: showAllErrors })), this.showStatusTrack && (_jsx(Box, { p: 2, children: _jsx(StatusTrackTable, { entity: job }) }))] }));
+        const { className, showHeader, isLoading, adjustable, editable, showComputeForm, compute, user, account, clusters, onUpdate, job, showAdvancedOptions, accountUsers, isAccountUsersLoading, showAllErrors, useComputeCards, clusterMetadata, computeQuota, runs, } = this.props;
+        return (_jsxs("div", { className: setClass(className, "wizard-step", "compute-step"), children: [showHeader ? (_jsxs(EntityHeaderContainer, { children: [_jsx(EntityHeader, { name: "Compute", subtitle: "Runtime configuration parameters", icon: "pages.compute", isLoading: isLoading, editable: false, adjustable: true, isDescriptionEditorHidden: true }), adjustable || editable ? (_jsx(AutoSetActionContainer, { children: _jsx(Dropdown, { className: "pull-right", actions: this.getDropdownAction(), children: _jsx(DropdownButton, { children: _jsx(IconByName, { name: "shapes.dots.vertical" }) }) }) })) : null] })) : null, showComputeForm && (_jsx(ComputeForm, { editable: editable, compute: compute, user: user, account: account, clusters: clusters, onUpdate: onUpdate, appName: job.workflow.usedApplicationNames[0], showAdvancedOptions: showAdvancedOptions, accountUsers: accountUsers, isAccountUsersLoading: isAccountUsersLoading, showAllErrors: showAllErrors, useComputeCards: useComputeCards, clusterMetadata: clusterMetadata, computeQuota: computeQuota, runs: runs })), this.showStatusTrack && (_jsx(Box, { p: 2, children: _jsx(StatusTrackTable, { entity: job }) }))] }));
     }
 }
 Compute.propTypes = {
@@ -83,6 +83,14 @@ Compute.propTypes = {
     accountUsers: PropTypes.array,
     /** Reveal every validation error, not just those for fields already touched. */
     showAllErrors: PropTypes.bool,
+    /** Render cluster cards, resource steppers and the estimate above the schema form. */
+    useComputeCards: PropTypes.bool,
+    /** Per-cluster pricing, limits and queue waits. Not part of the job document. */
+    clusterMetadata: PropTypes.array,
+    /** Remaining allowance for the paying account, when the host tracks one. */
+    computeQuota: PropTypes.object,
+    /** Multi-material jobs run once per material; the estimate covers all of them. */
+    runs: PropTypes.number,
 };
 Compute.defaultProps = {
     editable: true,

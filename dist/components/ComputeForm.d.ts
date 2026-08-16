@@ -1,5 +1,6 @@
 import { JSONSchema7 } from "json-schema";
 import React from "react";
+import type { ClusterMetadata, ComputeQuota } from "../utils/computeEstimate";
 import { UISchema } from "../utils/schemas";
 /** Minimal interface for cluster node objects passed from the host application. */
 export interface ClusterNode {
@@ -34,6 +35,21 @@ interface ComputeFormProps {
      * whole form has to answer for itself — on submit, or from a preflight check.
      */
     showAllErrors?: boolean;
+    /**
+     * Renders the cluster choice, the resource fields and the estimate as their
+     * own surface above the schema form, hiding those fields from it.
+     *
+     * Opt-in per host, like job-designer's guided layout: the fields move, so a
+     * host with its own tests or documentation against the schema form should
+     * flip this when it is ready rather than find it flipped for it.
+     */
+    useComputeCards?: boolean;
+    /** Pricing, limits and queue waits per cluster. Only used with `useComputeCards`. */
+    clusterMetadata?: ClusterMetadata[];
+    /** Remaining allowance for the paying account, when the host tracks one. */
+    computeQuota?: ComputeQuota | null;
+    /** Multi-material jobs run once per material; the estimate covers all of them. */
+    runs?: number;
 }
 interface ComputeFormState {
     formData: any;
@@ -59,6 +75,28 @@ export declare class ComputeForm extends React.Component<ComputeFormProps, Compu
     getNode: () => ClusterNode | undefined;
     getClusterQueues(): any;
     customValidate: (data: Record<string, any>, errors: any) => any;
+    /** Limits and pricing for the cluster currently chosen, if the host published any. */
+    get selectedClusterMetadata(): ClusterMetadata | undefined;
+    /**
+     * The compute the cards surface is editing, in the unflattened shape the
+     * estimate and limit checks expect.
+     */
+    get computeFromFormData(): {
+        cluster: {
+            fqdn: any;
+        };
+        nodes: any;
+        ppn: any;
+        timeLimit: any;
+        queue: any;
+    };
+    /**
+     * Writes from the cards surface go through the same path as a keystroke in
+     * the schema form — same touched-field bookkeeping, same validate-then-
+     * `onUpdate` gate — so the two cannot get out of step.
+     */
+    applyComputePatch: (patch: Record<string, any>) => void;
+    onClusterSelect: (hostname: string) => void;
     clusterOptions(): {
         label: any;
         value: any;

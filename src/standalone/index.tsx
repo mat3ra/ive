@@ -27,6 +27,32 @@ console.log("IVE standalone: mounting React app, schemas registered:", esseSchem
 
 // --- Mock Data ---
 
+/**
+ * Pricing, limits and queue waits the webapp would inject. Not part of the job
+ * document — without it the estimate can still count core-hours, but it cannot
+ * price them and there are no limits to hold the fields to.
+ */
+const mockClusterMetadata = [
+    {
+        fqdn: "cluster-1.mat3ra.com",
+        name: "Azure HPC Cluster 1",
+        pricePerCoreHour: 0.08,
+        currency: "USD",
+        limits: { maxNodes: 4, maxPpn: 32, maxWalltimeHours: 12 },
+        queueWaitMinutes: 8,
+    },
+    {
+        fqdn: "cluster-2.mat3ra.com",
+        name: "Azure HPC Cluster 2",
+        pricePerCoreHour: 0.05,
+        currency: "USD",
+        limits: { maxNodes: 2, maxPpn: 16, maxWalltimeHours: 6 },
+        queueWaitMinutes: 35,
+    },
+];
+
+const mockQuota = { remainingCoreHours: 500, totalCoreHours: 1000, currency: "USD" };
+
 const mockClusters = [
     {
         hostname: "cluster-1.mat3ra.com",
@@ -178,6 +204,8 @@ function App() {
     const [jsonInput, setJsonInput] = useState(JSON.stringify(defaultComputeConfig, null, 2));
     const [jsonError, setJsonError] = useState("");
     const [showAllErrors, setShowAllErrors] = useState(false);
+    // Phase 2.3 surface, opt-in: the demo is where it is reviewed before a host flips it on.
+    const [useComputeCards, setUseComputeCards] = useState(true);
     // Remount key: clearing the form has to reset the touched-field state too,
     // otherwise the previous session's touches keep their errors on screen.
     const [computeInstanceKey, setComputeInstanceKey] = useState(0);
@@ -239,8 +267,15 @@ function App() {
                     direction="row"
                     alignItems="center"
                     justifyContent="space-between"
-                    sx={{ px: 3, py: 1.5, borderBottom: 1, borderColor: "divider", bgcolor: "background.paper" }}
-                    spacing={2}>
+                    sx={{
+                        px: 3,
+                        py: 1.5,
+                        borderBottom: 1,
+                        borderColor: "divider",
+                        bgcolor: "background.paper",
+                    }}
+                    spacing={2}
+                >
                     <Typography variant="subtitle1" fontWeight={700}>
                         IVE — Infrastructure Viewer/Editor
                     </Typography>
@@ -251,7 +286,8 @@ function App() {
                         <Select
                             value={appName}
                             label="Application"
-                            onChange={(e) => setAppName(e.target.value)}>
+                            onChange={(e) => setAppName(e.target.value)}
+                        >
                             <MenuItem value="espresso">Quantum ESPRESSO</MenuItem>
                             <MenuItem value="vasp">VASP (Base Compute)</MenuItem>
                         </Select>
@@ -288,6 +324,17 @@ function App() {
                             }
                             label="Show all errors"
                         />
+                        {/* The cluster cards, resource steppers and estimate replace the
+                            schema form's cluster/nodes/cores/walltime fields. */}
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={useComputeCards}
+                                    onChange={(e) => setUseComputeCards(e.target.checked)}
+                                />
+                            }
+                            label="Cards + estimate"
+                        />
                         <Button size="small" onClick={loadEmptyCompute}>
                             Start empty
                         </Button>
@@ -312,6 +359,9 @@ function App() {
                             isAccountUsersLoading={false}
                             showHeader
                             showAllErrors={showAllErrors}
+                            useComputeCards={useComputeCards}
+                            clusterMetadata={mockClusterMetadata}
+                            computeQuota={mockQuota}
                         />
                     </Box>
 
@@ -326,7 +376,8 @@ function App() {
                             display: "flex",
                             flexDirection: "column",
                             gap: 2,
-                        }}>
+                        }}
+                    >
                         <Typography variant="subtitle1" fontWeight={600}>
                             Live Serialized Compute State (JSON)
                         </Typography>
@@ -341,7 +392,10 @@ function App() {
                                 setJsonError("");
                             }}
                             error={!!jsonError}
-                            helperText={jsonError || "You can edit this JSON and click 'LOAD JSON' to update the form."}
+                            helperText={
+                                jsonError ||
+                                "You can edit this JSON and click 'LOAD JSON' to update the form."
+                            }
                             inputProps={{
                                 style: {
                                     fontFamily: "monospace",
@@ -354,7 +408,8 @@ function App() {
                             color="primary"
                             onClick={handleLoadJson}
                             disabled={!jsonInput}
-                            fullWidth>
+                            fullWidth
+                        >
                             LOAD JSON
                         </Button>
                     </Box>

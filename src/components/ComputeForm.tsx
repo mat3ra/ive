@@ -28,7 +28,12 @@ import omitBy from "lodash/omitBy";
 import React from "react";
 
 import { getComputeSchema, getComputeValidator } from "../validators";
+import type { ClusterMetadata, ComputeQuota } from "../utils/computeEstimate";
+import { findClusterMetadata } from "../utils/computeEstimate";
 import { shouldShowFieldError, withTouchedField } from "../utils/touchedFields";
+import ClusterCards from "./ClusterCards";
+import ComputeEstimatePanel from "./ComputeEstimatePanel";
+import ComputeResources from "./ComputeResources";
 import Notify from "./Notify";
 import QueuesTable from "./QueuesTable";
 
@@ -142,7 +147,8 @@ function QueueSelectWidget(props: Record<string, any>) {
                 anchorOrigin={{
                     vertical: "bottom",
                     horizontal: "left",
-                }}>
+                }}
+            >
                 <QueuesTable queues={queues} onQueueClick={handleSelect} />
             </Popover>
         </>
@@ -174,12 +180,19 @@ const getPropsForGroup = (group: { fields: string[] }, props: Record<string, any
     return {
         ...props,
         properties: props.properties.filter(
-            (p: Record<string, any>) => group.fields.some((f: string) => new RegExp(f).test(p.name)) && !p.hidden,
+            (p: Record<string, any>) =>
+                group.fields.some((f: string) => new RegExp(f).test(p.name)) && !p.hidden,
         ),
     };
 };
 
 function ObjectFieldTemplateWrapper(props: Record<string, any>) {
+    // With the cards surface on, the cluster, queue and resource fields are
+    // rendered above and hidden here — so the group that used to be the cluster
+    // choice is now two documentation links, and calling it "Cluster" would send
+    // the reader looking for a picker that has moved.
+    const useComputeCards = Boolean(props.registry?.formContext?.useComputeCards);
+
     return (
         <>
             {GROUPS.map((group, index) => {
@@ -187,10 +200,13 @@ function ObjectFieldTemplateWrapper(props: Record<string, any>) {
 
                 if (!childProps.properties.length) return null;
 
+                const title =
+                    useComputeCards && group.title === "Cluster" ? "Documentation" : group.title;
+
                 return (
                     // eslint-disable-next-line react/no-array-index-key
                     <Paper key={`${group.title}-${index}`} sx={{ mb: 3, p: 3 }}>
-                        <CustomObjectFieldTemplate {...(childProps as any)} title={group.title} />
+                        <CustomObjectFieldTemplate {...(childProps as any)} title={title} />
                     </Paper>
                 );
             })}
@@ -317,6 +333,21 @@ interface ComputeFormProps {
      * whole form has to answer for itself — on submit, or from a preflight check.
      */
     showAllErrors?: boolean;
+    /**
+     * Renders the cluster choice, the resource fields and the estimate as their
+     * own surface above the schema form, hiding those fields from it.
+     *
+     * Opt-in per host, like job-designer's guided layout: the fields move, so a
+     * host with its own tests or documentation against the schema form should
+     * flip this when it is ready rather than find it flipped for it.
+     */
+    useComputeCards?: boolean;
+    /** Pricing, limits and queue waits per cluster. Only used with `useComputeCards`. */
+    clusterMetadata?: ClusterMetadata[];
+    /** Remaining allowance for the paying account, when the host tracks one. */
+    computeQuota?: ComputeQuota | null;
+    /** Multi-material jobs run once per material; the estimate covers all of them. */
+    runs?: number;
 }
 
 interface ComputeFormState {
@@ -414,7 +445,9 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
         const { formData } = this.state;
         const { clusters } = this.props;
         const cluster = clusters.find((x) => x.hostname === formData["cluster.fqdn"]);
-        const queues = cluster ? cluster.queues.filter((q: Record<string, any>) => q.nodeLimit) : [];
+        const queues = cluster
+            ? cluster.queues.filter((q: Record<string, any>) => q.nodeLimit)
+            : [];
 
         return queues;
     }
@@ -449,6 +482,63 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
         });
 
         return errors;
+    };
+
+    /** Limits and pricing for the cluster currently chosen, if the host published any. */
+    get selectedClusterMetadata(): ClusterMetadata | undefined {
+        const { clusterMetadata = [] } = this.props;
+        const { formData } = this.state;
+
+        return findClusterMetadata(
+            { cluster: { fqdn: formData["cluster.fqdn"] } },
+            clusterMetadata,
+        );
+    }
+
+    /**
+     * The compute the cards surface is editing, in the unflattened shape the
+     * estimate and limit checks expect.
+     */
+    get computeFromFormData() {
+        const { formData } = this.state;
+
+        return {
+            cluster: { fqdn: formData["cluster.fqdn"] },
+            nodes: formData.nodes,
+            ppn: formData.ppn,
+            timeLimit: formData.timeLimit,
+            queue: formData.queue,
+        };
+    }
+
+    /**
+     * Writes from the cards surface go through the same path as a keystroke in
+     * the schema form — same touched-field bookkeeping, same validate-then-
+     * `onUpdate` gate — so the two cannot get out of step.
+     */
+    applyComputePatch = (patch: Record<string, any>) => {
+        const { formData } = this.state;
+        const flatPatch: Record<string, any> = { ...patch };
+
+        if (Object.prototype.hasOwnProperty.call(patch, "cluster")) {
+            delete flatPatch.cluster;
+            flatPatch["cluster.fqdn"] = patch.cluster?.fqdn;
+        }
+
+        const fieldId = `root_${Object.keys(flatPatch)[0] ?? ""}`;
+        this.handleFormUpdate({ formData: { ...formData, ...flatPatch } }, fieldId);
+    };
+
+    onClusterSelect = (hostname: string) => {
+        const { clusters } = this.props;
+        const cluster = clusters.find((entry) => entry.hostname === hostname);
+        const [firstQueue] = (cluster?.queues ?? []).filter(
+            (queue: Record<string, any>) => queue.nodeLimit,
+        );
+
+        // Queues belong to a cluster, so a queue chosen on the previous one is
+        // meaningless here; default to the first this cluster actually offers.
+        this.applyComputePatch({ "cluster.fqdn": hostname, queue: firstQueue?.name });
     };
 
     clusterOptions() {
@@ -493,6 +583,11 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
             gridParams,
             pathForClusters,
             showAllErrors = false,
+            useComputeCards = false,
+            clusters,
+            clusterMetadata,
+            computeQuota,
+            runs = 1,
         } = this.props;
         const { formData } = this.state;
         const disableFields = !editable;
@@ -519,17 +614,57 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
         const uiSchema = this.computeUiSchema.resolveSchemaValues({
             DISABLE_FIELDS: disableFields,
             SHOW_ADVANCED_OPTIONS: showAdvancedOptions ? "updown" : "hidden",
-            CLUSTER_FQDN_WIDGET: disableFields ? "hidden" : "select",
+            CLUSTER_FQDN_WIDGET: disableFields || useComputeCards ? "hidden" : "select",
             CLUSTER_JID_WIDGET: disableFields ? "text" : "hidden",
             CLUSTER_COST_WIDGET: disableFields ? LinkWidget : "hidden",
             CLUSTER_STATUS_DOC_WIDGET: disableFields ? "hidden" : LinkWidget,
             QUEUES_OPTIONS: this.queueOptions(),
+            // With the cards surface on, these four are edited above and hidden
+            // here — hidden rather than removed, so the schema still validates
+            // them and nothing downstream has to learn a second shape.
+            RESOURCE_FIELD_WIDGET: useComputeCards ? "hidden" : "updown",
+            WALLTIME_FIELD_WIDGET: useComputeCards ? "hidden" : "text",
+            QUEUE_FIELD_WIDGET: useComputeCards ? "hidden" : "QueueSelectWidget",
         });
 
         return (
             <Box sx={{ display: "flex" }} id="compute-step-form">
                 <Box sx={{ flexGrow: 1 }}>
                     <Grid container>
+                        {useComputeCards ? (
+                            <Grid item xs={12} p={2}>
+                                <Paper sx={{ p: 3, mb: 3 }} id="compute-cards">
+                                    <Typography variant="subtitle2" gutterBottom>
+                                        Cluster
+                                    </Typography>
+                                    <ClusterCards
+                                        clusters={clusters}
+                                        clusterMetadata={clusterMetadata}
+                                        selectedHostname={formData["cluster.fqdn"]}
+                                        onSelect={this.onClusterSelect}
+                                        disabled={disableFields}
+                                    />
+                                    <Box sx={{ mt: 3 }}>
+                                        <ComputeResources
+                                            compute={this.computeFromFormData}
+                                            queues={this.getClusterQueues()}
+                                            limits={this.selectedClusterMetadata?.limits}
+                                            onChange={this.applyComputePatch}
+                                            disabled={disableFields}
+                                            showAllErrors={showAllErrors}
+                                        />
+                                    </Box>
+                                    <Box sx={{ mt: 3 }}>
+                                        <ComputeEstimatePanel
+                                            compute={this.computeFromFormData}
+                                            clusterMetadata={clusterMetadata}
+                                            quota={computeQuota}
+                                            runs={runs}
+                                        />
+                                    </Box>
+                                </Paper>
+                            </Grid>
+                        ) : null}
                         <Grid item p={2} {...(gridParams?.left || DEFAULT_GRID_PARAMS.left)}>
                             <RJSForm
                                 // RJSF only re-validates when its schema or form data
@@ -540,6 +675,7 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
                                 key={showAllErrors ? "show-all-errors" : "progressive"}
                                 schema={finalSchema as any}
                                 uiSchema={uiSchema}
+                                formContext={{ useComputeCards }}
                                 validator={rjsfValidator}
                                 formData={formData}
                                 onChange={(event: any, fieldId?: string) =>
