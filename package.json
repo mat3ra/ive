@@ -22,6 +22,7 @@
         "build": "tsc && npm run copy-css",
         "build:standalone": "vite build",
         "copy-css": "mkdir -p dist/stylesheets && cp src/stylesheets/* dist/stylesheets/ 2>/dev/null || true",
+        "prepare": "husky install",
         "transpile": "tsc",
         "test": "node --import tsx --test tests/*.tests.ts",
         "lint": "eslint src tests && prettier --check src tests"
@@ -57,6 +58,7 @@
         "@types/react": "^17.0.2",
         "@types/react-dom": "^17.0.2",
         "@vitejs/plugin-react": "^4.3.4",
+        "husky": "^7.0.4",
         "lodash": "^4.17.4",
         "react": "^17.0.0",
         "react-dom": "^17.0.0",
