@@ -28,6 +28,11 @@ declare namespace Compute {
         let showStatusTrack: PropTypes.Requireable<boolean>;
         let showAdvancedOptions: PropTypes.Requireable<boolean>;
         let accountUsers: PropTypes.Requireable<any[]>;
+        let showAllErrors: PropTypes.Requireable<boolean>;
+        let useComputeCards: PropTypes.Requireable<boolean>;
+        let clusterMetadata: PropTypes.Requireable<any[]>;
+        let computeQuota: PropTypes.Requireable<object>;
+        let runs: PropTypes.Requireable<number>;
     }
     namespace defaultProps {
         let editable_1: boolean;

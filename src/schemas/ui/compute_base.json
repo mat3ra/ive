@@ -3,7 +3,7 @@
     "properties": {
         "queue": {
             "ui:title": "Queue",
-            "ui:widget": "QueueSelectWidget",
+            "ui:widget": "$val.QUEUE_FIELD_WIDGET",
             "ui:disabled": "$val.DISABLE_FIELDS",
             "ui:description": " ",
             "ui:options": {
@@ -16,7 +16,7 @@
         },
         "nodes": {
             "ui:title": "Nodes",
-            "ui:widget": "updown",
+            "ui:widget": "$val.RESOURCE_FIELD_WIDGET",
             "ui:disabled": "$val.DISABLE_FIELDS",
             "ui:description": " ",
             "ui:options": {
@@ -28,7 +28,7 @@
         },
         "ppn": {
             "ui:title": "Cores",
-            "ui:widget": "updown",
+            "ui:widget": "$val.RESOURCE_FIELD_WIDGET",
             "ui:disabled": "$val.DISABLE_FIELDS",
             "ui:description": " ",
             "ui:options": {
@@ -40,6 +40,7 @@
         },
         "timeLimit": {
             "ui:title": "Time Limit",
+            "ui:widget": "$val.WALLTIME_FIELD_WIDGET",
             "ui:disabled": "$val.DISABLE_FIELDS",
             "ui:description": " ",
             "ui:options": {

@@ -88,6 +88,11 @@ class Compute extends React.Component {
             showAdvancedOptions,
             accountUsers,
             isAccountUsersLoading,
+            showAllErrors,
+            useComputeCards,
+            clusterMetadata,
+            computeQuota,
+            runs,
         } = this.props;
 
         return (
@@ -126,6 +131,11 @@ class Compute extends React.Component {
                         showAdvancedOptions={showAdvancedOptions}
                         accountUsers={accountUsers}
                         isAccountUsersLoading={isAccountUsersLoading}
+                        showAllErrors={showAllErrors}
+                        useComputeCards={useComputeCards}
+                        clusterMetadata={clusterMetadata}
+                        computeQuota={computeQuota}
+                        runs={runs}
                     />
                 )}
                 {this.showStatusTrack && (
@@ -150,6 +160,16 @@ Compute.propTypes = {
     showStatusTrack: PropTypes.bool,
     showAdvancedOptions: PropTypes.bool,
     accountUsers: PropTypes.array,
+    /** Reveal every validation error, not just those for fields already touched. */
+    showAllErrors: PropTypes.bool,
+    /** Render cluster cards, resource steppers and the estimate above the schema form. */
+    useComputeCards: PropTypes.bool,
+    /** Per-cluster pricing, limits and queue waits. Not part of the job document. */
+    clusterMetadata: PropTypes.array,
+    /** Remaining allowance for the paying account, when the host tracks one. */
+    computeQuota: PropTypes.object,
+    /** Multi-material jobs run once per material; the estimate covers all of them. */
+    runs: PropTypes.number,
 };
 
 Compute.defaultProps = {
