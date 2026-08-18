@@ -24,7 +24,8 @@
         "copy-css": "mkdir -p dist/stylesheets && cp src/stylesheets/* dist/stylesheets/ 2>/dev/null || true",
         "transpile": "tsc",
         "test": "node --import tsx --test tests/*.tests.ts",
-        "lint": "eslint src tests && prettier --check src tests"
+        "lint": "eslint src tests && prettier --check src tests",
+        "prepublishOnly": "npm run transpile"
     },
     "dependencies": {
         "flat": "^5.0.2",
