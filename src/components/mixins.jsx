@@ -56,7 +56,10 @@ export const ComputableEntityMixin = (superclass) =>
 
         // errors come from backend
         renderErrors() {
-            const notDismissedErrors = this.computedEntity.errors.filter(
+            // Not every computedEntity implements errors/warnings (e.g. job-designer's
+            // standalone demo builds a bare jode Job with neither) - default to none rather
+            // than crashing the whole component on a missing optional field.
+            const notDismissedErrors = (this.computedEntity.errors ?? []).filter(
                 (e, idx) => !this.state.dismissErrorAlerts[idx],
             );
             return notDismissedErrors.length > 0
@@ -82,7 +85,7 @@ export const ComputableEntityMixin = (superclass) =>
 
         // warnings are calculated "on-the-fly"
         renderWarnings() {
-            const notDismissedWarnings = this.computedEntity.warnings.filter(
+            const notDismissedWarnings = (this.computedEntity.warnings ?? []).filter(
                 (e, idx) => !this.state.dismissWarningAlerts[idx],
             );
             return notDismissedWarnings.map((warningConfig, idx) => {
