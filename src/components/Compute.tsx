@@ -1,22 +1,56 @@
-/* eslint-disable react/require-default-props */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable react/prop-types */
 import Dropdown from "@mat3ra/cove/dist/mui/components/dropdown";
 import IconByName from "@mat3ra/cove/dist/mui/components/icon/IconByName";
 import { showWarningAlert } from "@mat3ra/cove/dist/other/alerts";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 import setClass from "classnames";
-import PropTypes from "prop-types";
 import React from "react";
 
 import { ComputeForm } from "./ComputeForm";
-import { StatusTrackTable } from "./StatusTrackTable";
+import type { AccountUser } from "./Notify";
+import { StatusTrackTable, StatusTrackEntry } from "./StatusTrackTable";
 
 import EntityHeader from "@mat3ra/cove/dist/mui-composed/components/entity-header/EntityHeader";
+import type { Account, ClusterNode, CoreUser } from "./ComputeForm";
+
+/** Minimal shape `Compute` needs off the host's job entity. */
+export interface ComputeJob {
+    statusTrack?: unknown[];
+    statusTrackSorted: StatusTrackEntry[];
+    usedApplicationNames: string[];
+}
+
+interface ComputeProps {
+    className?: string;
+    showHeader?: boolean;
+    isLoading?: boolean;
+    adjustable?: boolean;
+    editable?: boolean;
+    showComputeForm?: boolean;
+    showStatusTrack?: boolean;
+    compute: any;
+    user: CoreUser;
+    account: Account;
+    clusters: ClusterNode[];
+    onUpdate: (s: string) => void;
+    job: ComputeJob;
+    showAdvancedOptions?: boolean;
+    accountUsers: AccountUser[];
+    isAccountUsersLoading: boolean;
+}
+
+interface ComputeState {
+    isAutoSet: boolean;
+}
 
 const DropdownButton = styled("div")(({ theme }) => ({
-    border: `1px solid ${theme.palette.border?.dark ?? theme.palette.divider}`,
+    // `theme.palette.border` is a real @mat3ra/cove theme augmentation (`src/theme/mui.d.ts`),
+    // but cove only ships its `dist/` build - the augmentation file itself isn't published, so
+    // ive's own compilation can't see it. Cast locally rather than treat it as dead code.
+    border: `1px solid ${
+        (theme.palette as { border?: { dark?: string } }).border?.dark ?? theme.palette.divider
+    }`,
     borderRadius: "4px",
     padding: theme.spacing(1),
     width: "40px",
@@ -38,8 +72,16 @@ const EntityHeaderContainer = styled("div")(() => ({
     width: "100%",
 }));
 
-class Compute extends React.Component {
-    constructor(props) {
+class Compute extends React.Component<ComputeProps, ComputeState> {
+    static defaultProps = {
+        editable: true,
+        showHeader: true,
+        clusters: [],
+        showComputeForm: true,
+        showStatusTrack: true,
+    };
+
+    constructor(props: ComputeProps) {
         super(props);
         this.state = {
             isAutoSet: false,
@@ -100,8 +142,6 @@ class Compute extends React.Component {
                             icon="pages.compute"
                             isLoading={isLoading}
                             editable={false}
-                            adjustable
-                            isDescriptionEditorHidden
                         />
                         {adjustable || editable ? (
                             <AutoSetActionContainer>
@@ -116,14 +156,14 @@ class Compute extends React.Component {
                 ) : null}
                 {showComputeForm && (
                     <ComputeForm
-                        editable={editable}
+                        editable={Boolean(editable)}
                         compute={compute}
                         user={user}
                         account={account}
                         clusters={clusters}
                         onUpdate={onUpdate}
-                        appName={job.workflow.usedApplicationNames[0]}
-                        showAdvancedOptions={showAdvancedOptions}
+                        appName={job.usedApplicationNames[0]}
+                        showAdvancedOptions={Boolean(showAdvancedOptions)}
                         accountUsers={accountUsers}
                         isAccountUsersLoading={isAccountUsersLoading}
                     />
@@ -137,28 +177,5 @@ class Compute extends React.Component {
         );
     }
 }
-
-Compute.propTypes = {
-    editable: PropTypes.bool,
-    compute: PropTypes.object,
-    job: PropTypes.object,
-    user: PropTypes.object,
-    account: PropTypes.object,
-    clusters: PropTypes.array,
-    onUpdate: PropTypes.func,
-    showComputeForm: PropTypes.bool,
-    showStatusTrack: PropTypes.bool,
-    showAdvancedOptions: PropTypes.bool,
-    accountUsers: PropTypes.array,
-};
-
-Compute.defaultProps = {
-    editable: true,
-    // eslint-disable-next-line react/default-props-match-prop-types
-    showHeader: true,
-    clusters: [],
-    showComputeForm: true,
-    showStatusTrack: true,
-};
 
 export default Compute;

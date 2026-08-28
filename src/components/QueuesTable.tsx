@@ -15,7 +15,9 @@ export interface Queue {
     name: string;
     displayName: string;
     maxAvailableNodect: number;
-    capacity: string;
+    // esse's `compute/queue` schema never lists `capacity` in `required` - real Queue
+    // instances can genuinely have it undefined.
+    capacity?: string;
     load: number;
     getETAClient: () => { display: string };
 }
