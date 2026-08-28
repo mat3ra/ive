@@ -13,10 +13,10 @@ import { ClustersLoadHandler } from "../utils/clusters_load";
 /** Minimal interface for queue objects passed from the host application. */
 export interface Queue {
     name: string;
-    displayName: string;
+    // esse's `compute/queue` schema never lists `displayName`/`capacity` in `required` -
+    // real Queue instances can genuinely have either undefined.
+    displayName?: string;
     maxAvailableNodect: number;
-    // esse's `compute/queue` schema never lists `capacity` in `required` - real Queue
-    // instances can genuinely have it undefined.
     capacity?: string;
     load: number;
     getETAClient: () => { display: string };
