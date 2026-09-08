@@ -10,7 +10,15 @@ import { getNodeNumber } from "../validators";
 
 import { ClustersLoadHandler } from "../utils/clusters_load";
 
-/** Minimal interface for queue objects passed from the host application. */
+/**
+ * Minimal interface for queue objects passed from the host application. Mirrors `@mat3ra/ide`'s
+ * real `QueueMixin` (`maxAvailableNodect`/`load`) plus the plain schema fields this table also
+ * renders - see `mixins.tsx`'s `ComputableEntity` for the same mirroring convention. `eta` is
+ * deliberately a plain, optional data field rather than a method: computing it needs a live
+ * query against the host app's jobs store, so it only ever makes sense as something the host
+ * resolves server-side and hands down, never as something a Queue instance can compute itself
+ * on the client.
+ */
 export interface Queue {
     name: string;
     // esse's `compute/queue` schema never lists `displayName`/`capacity` in `required` -
@@ -19,7 +27,7 @@ export interface Queue {
     maxAvailableNodect: number;
     capacity?: string;
     load: number;
-    getETAClient: () => { display: string };
+    eta?: { display: string };
 }
 
 interface QueuesTableProps {
@@ -60,7 +68,8 @@ export default function QueuesTable({ queues, onQueueClick }: QueuesTableProps) 
                                     border: 0,
                                 },
                                 cursor: "pointer",
-                            }}>
+                            }}
+                        >
                             <TableCell component="th" scope="row">
                                 {queue.name}
                             </TableCell>
@@ -69,7 +78,7 @@ export default function QueuesTable({ queues, onQueueClick }: QueuesTableProps) 
                             <TableCell>{getNodeNumber(queue.name)}</TableCell>
                             <TableCell>{queue.capacity}</TableCell>
                             <TableCell>{load}</TableCell>
-                            <TableCell>{queue.getETAClient().display}</TableCell>
+                            <TableCell>{queue.eta?.display ?? "—"}</TableCell>
                             <TableCell>
                                 <IconByName name="shapes.circle" color={led} />
                             </TableCell>
