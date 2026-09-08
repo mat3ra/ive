@@ -2,10 +2,40 @@
 import Alert from "@mui/material/Alert";
 import React from "react";
 
-export const ComputableEntityMixin = (superclass) =>
+/** Shape of a single backend-reported compute error, as rendered by `renderErrors()`. */
+export interface ComputeError {
+    message: string;
+    reason?: string;
+    traceback?: string;
+}
+
+/** Shape of a single "on-the-fly" warning, as rendered by `renderWarnings()`. */
+export interface WarningConfig {
+    condition: boolean;
+    message: React.ReactNode;
+}
+
+/**
+ * What `computedEntity` needs to provide. Mirrors `@mat3ra/ide`'s real
+ * `ComputedEntityMixin<C>` (`errors`, always populated by the mixin `ide` applies to
+ * jode's `Job.prototype`) - but `warnings` is optional, matching reality: `ide` dropped
+ * its `warnings` fallback (nothing replaced it - the intended web-app follow-up never
+ * landed, and the file it would have landed in was later deleted entirely), so no
+ * producer of `.warnings` exists anywhere in the stack today.
+ */
+export interface ComputableEntity {
+    readonly errors: ComputeError[];
+    readonly warnings?: WarningConfig[];
+}
+
+type Constructor<T = React.Component> = new (...args: any[]) => T;
+
+export const ComputableEntityMixin = <TBase extends Constructor>(superclass: TBase) =>
     class extends superclass {
-        constructor(props) {
-            super(props);
+        state: any;
+
+        constructor(...args: any[]) {
+            super(...args);
             this.state = {
                 ...this.state,
                 dismissWarningAlerts: {
@@ -18,12 +48,12 @@ export const ComputableEntityMixin = (superclass) =>
             this.handleErrorAlertDismiss = this.handleErrorAlertDismiss.bind(this);
         }
 
-        shouldComponentUpdateFromComputableEntityMixin(nextProps, nextState) {
+        shouldComponentUpdateFromComputableEntityMixin(nextProps: any, nextState: any) {
             // to calculate the number of (dismissed) alerts in the state
             const { dismissErrorAlerts, dismissWarningAlerts } = this.state;
-            const stateObjectToNumber = (object) =>
+            const stateObjectToNumber = (object: Record<string, boolean>) =>
                 Object.values(object)
-                    .map((v) => (v === true ? 1 : 0))
+                    .map((v): number => (v === true ? 1 : 0))
                     .reduce((a, b) => a + b, 0);
             return !(
                 stateObjectToNumber(dismissErrorAlerts) ===
@@ -33,7 +63,7 @@ export const ComputableEntityMixin = (superclass) =>
             );
         }
 
-        handleWarningAlertDismiss(key) {
+        handleWarningAlertDismiss(key: number) {
             this.setState({
                 dismissWarningAlerts: {
                     [key]: true,
@@ -41,7 +71,7 @@ export const ComputableEntityMixin = (superclass) =>
             });
         }
 
-        handleErrorAlertDismiss(key) {
+        handleErrorAlertDismiss(key: number) {
             this.setState({
                 dismissErrorAlerts: {
                     [key]: true,
@@ -50,12 +80,12 @@ export const ComputableEntityMixin = (superclass) =>
         }
 
         // override upon mixing
-        get computedEntity() {
+        get computedEntity(): ComputableEntity {
             throw new Error("Not implemented.");
         }
 
         // errors come from backend
-        renderErrors() {
+        renderErrors(): React.ReactNode {
             const notDismissedErrors = this.computedEntity.errors.filter(
                 (e, idx) => !this.state.dismissErrorAlerts[idx],
             );
@@ -80,9 +110,9 @@ export const ComputableEntityMixin = (superclass) =>
                 : null;
         }
 
-        // warnings are calculated "on-the-fly"
-        renderWarnings() {
-            const notDismissedWarnings = this.computedEntity.warnings.filter(
+        // warnings are calculated "on-the-fly" - optional, see `ComputableEntity` above
+        renderWarnings(): React.ReactNode {
+            const notDismissedWarnings = (this.computedEntity.warnings ?? []).filter(
                 (e, idx) => !this.state.dismissWarningAlerts[idx],
             );
             return notDismissedWarnings.map((warningConfig, idx) => {
