@@ -1,4 +1,4 @@
-import { QUEUE_TYPES } from "@mat3ra/ide";
+import { QueueNameEnum } from "@mat3ra/esse/dist/js/types";
 import Ajv from "ajv";
 import s from "underscore.string";
 
@@ -51,34 +51,32 @@ const validatePpn = (ppn: number, dataPath: unknown, data: Record<string, any> =
 };
 
 const oneNodeQueueTypeList = [
-    QUEUE_TYPES.debug,
-    QUEUE_TYPES.ordinaryRegular,
-    QUEUE_TYPES.ordinaryRegular4,
-    QUEUE_TYPES.ordinaryRegular8,
-    QUEUE_TYPES.ordinaryRegular16,
-    QUEUE_TYPES.savingRegular,
-    QUEUE_TYPES.savingRegular4,
-    QUEUE_TYPES.savingRegular8,
-    QUEUE_TYPES.savingRegular16,
+    QueueNameEnum.debug,
+    QueueNameEnum.ordinaryRegular,
+    QueueNameEnum.ordinaryRegular4,
+    QueueNameEnum.ordinaryRegular8,
+    QueueNameEnum.ordinaryRegular16,
+    QueueNameEnum.savingRegular,
+    QueueNameEnum.savingRegular4,
+    QueueNameEnum.savingRegular8,
+    QueueNameEnum.savingRegular16,
 ];
 
 const maxTenNodesQueueTypeList = [
-    QUEUE_TYPES.gpuOrdinaryFast,
-    QUEUE_TYPES["4gpuOrdinaryFast"],
-    QUEUE_TYPES["8gpuOrdinaryFast"],
-    QUEUE_TYPES.gpuPOrdinaryFast,
-    QUEUE_TYPES.gpuP2OrdinaryFast,
-    QUEUE_TYPES.gpuP4OrdinaryFast,
-    QUEUE_TYPES.gpuSavingFast,
-    QUEUE_TYPES["4gpuSavingFast"],
-    QUEUE_TYPES["8gpuSavingFast"],
-    QUEUE_TYPES.gpuPSavingFast,
-    QUEUE_TYPES.gpuP2SavingFast,
-    QUEUE_TYPES.gpuP4SavingFast,
-    QUEUE_TYPES.savingFast,
-    QUEUE_TYPES.savingFastPlus,
-    QUEUE_TYPES.ordinaryFast,
-    QUEUE_TYPES.ordinaryFastPlus,
+    QueueNameEnum.gpuOrdinaryFast,
+    QueueNameEnum.gpu4OrdinaryFast,
+    QueueNameEnum.gpu8OrdinaryFast,
+    QueueNameEnum.gpuP4OrdinaryFast,
+    QueueNameEnum.gpuSavingFast,
+    QueueNameEnum.gpu4SavingFast,
+    QueueNameEnum.gpu8SavingFast,
+    QueueNameEnum.gpuPSavingFast,
+    QueueNameEnum.gpuP2SavingFast,
+    QueueNameEnum.gpuP4SavingFast,
+    QueueNameEnum.savingFast,
+    QueueNameEnum.savingFastPlus,
+    QueueNameEnum.ordinaryFast,
+    QueueNameEnum.ordinaryFastPlus,
 ];
 
 /**
@@ -154,7 +152,7 @@ const getComputeSchema = (appName: string) => {
     schema = updateComputeSchemaWithApplication(schema, appName);
     // Guard: schema may be empty ({}) in standalone mode when ESSE registry lacks 'job/compute'
     if (schema?.properties?.queue) {
-        schema.properties.queue.enum = Object.values(QUEUE_TYPES);
+        schema.properties.queue.enum = Object.values(QueueNameEnum);
     }
     if (schema?.properties?.timeLimitType) {
         schema.properties.timeLimitType.enum = ["per single attempt", "compound"];
