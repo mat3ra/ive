@@ -28,7 +28,7 @@ import omitBy from "lodash/omitBy";
 import React from "react";
 
 import { getComputeSchema, getComputeValidator } from "../validators";
-import Notify from "./Notify";
+import Notify, { AccountUser } from "./Notify";
 import QueuesTable from "./QueuesTable";
 
 import { LoadingIndicator } from "@mat3ra/cove/dist/mui-composed/components/loading/LoadingIndicator";
@@ -299,7 +299,7 @@ function resolveComputeUISchema(appName: string): UISchema {
 interface ComputeFormProps {
     user: CoreUser;
     account: Account;
-    accountUsers: CoreUser[];
+    accountUsers: AccountUser[];
     clusters: ClusterNode[];
     isAccountUsersLoading: boolean;
     showAdvancedOptions: boolean;
@@ -453,7 +453,6 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
         const {
             editable,
             showAdvancedOptions,
-            user,
             accountUsers,
             isAccountUsersLoading,
             compute,
@@ -515,7 +514,6 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
                                 <LoadingIndicator key="loading-indicator" size="small" included />
                             ) : (
                                 <Notify
-                                    user={user}
                                     accountUsers={accountUsers}
                                     editable={editable}
                                     onUpdate={this.onNotifyUpdate}

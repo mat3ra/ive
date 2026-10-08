@@ -8,27 +8,32 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import moment from "moment";
-import PropTypes from "prop-types";
 import React, { Component } from "react";
 import capitalize from "underscore.string/capitalize";
 import "moment-duration-format";
 
-export class StatusTrackTable extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-    }
+export interface StatusTrackEntry {
+    trackedAt: number | string;
+    [key: string]: unknown;
+}
 
+interface StatusTrackTableProps {
+    entity: {
+        statusTrackSorted: StatusTrackEntry[];
+    };
+}
+
+export class StatusTrackTable extends Component<StatusTrackTableProps> {
     // adds time delta (duration) for any subsequent status changes
     get statusTrackWithTimeDelta() {
         const { entity } = this.props;
 
         return entity.statusTrackSorted.map((entry, index, array) => {
-            let duration = "-";
+            let duration: string = "-";
             const nextEntry = array[index + 1];
             if (nextEntry) {
                 duration = moment
-                    .duration(nextEntry.trackedAt - entry.trackedAt, "milliseconds")
+                    .duration(Number(nextEntry.trackedAt) - Number(entry.trackedAt), "milliseconds")
                     .format("h[h] m[m] s[s]");
             }
             return { ...entry, duration };
@@ -62,10 +67,10 @@ export class StatusTrackTable extends Component {
                                     {Object.values(entry).map((value, idx) => (
                                         <TableCell key={idx}>
                                             {tableHeaders[idx] === "trackedAt"
-                                                ? moment(value).format(
+                                                ? moment(value as string | number).format(
                                                       "dddd, MMMM Do YYYY, h:mm:ss a",
                                                   )
-                                                : value}
+                                                : (value as React.ReactNode)}
                                         </TableCell>
                                     ))}
                                 </TableRow>
@@ -77,10 +82,3 @@ export class StatusTrackTable extends Component {
         );
     }
 }
-
-StatusTrackTable.propTypes = {
-    // eslint-disable-next-line react/require-default-props
-    entity: PropTypes.object,
-};
-
-StatusTrackTable.defaultProps = {};

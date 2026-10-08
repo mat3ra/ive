@@ -26,7 +26,7 @@ function calculateLoad(load: number) {
     return "high";
 }
 
-function getStatus(load: string, capacity: string) {
+function getStatus(load: string, capacity: string | undefined) {
     switch (`${load}/${capacity}`) {
         case "low/FULL":
             return LOAD_STATUSES.low;
@@ -55,7 +55,7 @@ function getStatus(load: string, capacity: string) {
 }
 
 export const ClustersLoadHandler = {
-    queueStatus(load: number, capacity: string) {
+    queueStatus(load: number, capacity: string | undefined) {
         const calculatedLoad = calculateLoad(load);
         return getStatus(calculatedLoad, capacity);
     },

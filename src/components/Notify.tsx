@@ -1,9 +1,7 @@
-/* eslint-disable react/require-default-props */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable react/prop-types */
 import { EMAIL_NOTIFICATIONS } from "@mat3ra/ide";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -14,13 +12,34 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Paper from "@mui/material/Paper";
-import Select from "@mui/material/Select";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Typography from "@mui/material/Typography";
 import setClass from "classnames";
-import PropTypes from "prop-types";
 import React from "react";
 
 import AccountCard from "@mat3ra/cove/dist/mui-composed/components/account/AccountCard";
+
+/** Minimal shape of an account-user entry, as passed from the host application. */
+export interface AccountUser {
+    entity: { id: string | number; email: string; [key: string]: unknown };
+    account: { entity: { name?: string; [key: string]: unknown } };
+}
+
+interface NotifyProps {
+    notify?: string;
+    email?: string;
+    accountUsers: AccountUser[];
+    editable?: boolean;
+    onUpdate: (payload: { notify: string; email: string }) => void;
+}
+
+interface NotifyState {
+    notify: string;
+    isBegin: boolean;
+    isAbort: boolean;
+    isEnd: boolean;
+    selectedUsers: AccountUser[];
+}
 
 const IS_BEGIN = "isBegin";
 const IS_ABORT = "isAbort";
@@ -36,8 +55,12 @@ const MenuProps = {
     },
 };
 
-class Notify extends React.Component {
-    constructor(props) {
+class Notify extends React.Component<NotifyProps, NotifyState> {
+    static defaultProps = {
+        editable: true,
+    };
+
+    constructor(props: NotifyProps) {
         super(props);
 
         const { notify = "", email, accountUsers } = this.props;
@@ -57,10 +80,8 @@ class Notify extends React.Component {
         };
     }
 
-    selectNotifyAccount = (event) => {
-        const {
-            target: { value: selectedUsers },
-        } = event;
+    selectNotifyAccount = (event: SelectChangeEvent<AccountUser[]>) => {
+        const selectedUsers = event.target.value as AccountUser[];
         const { editable, onUpdate } = this.props;
         const { isBegin, isAbort, isEnd } = this.state;
 
@@ -113,17 +134,17 @@ class Notify extends React.Component {
                 },
                 () => {
                     const { notify, selectedUsers: users } = this.state;
-                    onUpdate({ notify, email: users.map((user) => user.email).join(",") });
+                    onUpdate({ notify, email: users.map((user) => user.entity.email).join(",") });
                 },
             );
         }
     };
 
-    toggleOption(optionName) {
+    toggleOption(optionName: string) {
         const { onUpdate } = this.props;
         const { selectedUsers } = this.state;
         const isSelectedUsers = !!selectedUsers.length;
-        let updatedState;
+        let updatedState: Partial<NotifyState>;
 
         if (!isSelectedUsers) {
             return;
@@ -143,7 +164,7 @@ class Notify extends React.Component {
                 throw new Error(`Not supported optionName ${optionName}`);
         }
 
-        this.setState(updatedState, () => {
+        this.setState((prevState) => ({ ...prevState, ...updatedState }), () => {
             const { notify, selectedUsers: users } = this.state;
             onUpdate({
                 notify: users.length ? notify : EMAIL_NOTIFICATIONS.never,
@@ -224,14 +245,16 @@ class Notify extends React.Component {
                             onChange={this.selectNotifyAccount}
                             input={<OutlinedInput label="Select users" />}
                             renderValue={(selected) => {
-                                return selected.map((user) => user.account.entity.name).join(", ");
+                                return (selected as AccountUser[])
+                                    .map((user) => user.account.entity.name)
+                                    .join(", ");
                             }}
                             MenuProps={MenuProps}
                             disabled={!editable}>
                             {accountUsers.map((item) => (
                                 <MenuItem
                                     key={item.entity.id}
-                                    value={item}
+                                    value={item as unknown as string}
                                     className="users-multiselect-item">
                                     <Checkbox
                                         checked={
@@ -297,15 +320,5 @@ class Notify extends React.Component {
         );
     }
 }
-
-Notify.propTypes = {
-    onUpdate: PropTypes.func,
-    editable: PropTypes.bool,
-    email: PropTypes.string,
-};
-
-Notify.defaultProps = {
-    editable: true,
-};
 
 export default Notify;
