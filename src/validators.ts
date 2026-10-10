@@ -1,4 +1,5 @@
 import { QueueNameEnum } from "@mat3ra/esse/dist/js/types";
+import addJsonSchemaToTypescriptKeywords from "@mat3ra/esse/dist/js/utils/ajvKeywords/jsonSchemaToTypescriptKeywords";
 import Ajv from "ajv";
 import s from "underscore.string";
 
@@ -175,6 +176,7 @@ const getComputeValidator = (schema: Record<string, any>) => {
     };
 
     const ajv = new Ajv({ allErrors: true, verbose: true });
+    addJsonSchemaToTypescriptKeywords(ajv);
     ajv.addKeyword({
         keyword: "validateTimeLimit",
         type: "string",
