@@ -27,6 +27,7 @@ import isObject from "lodash/isObject";
 import omitBy from "lodash/omitBy";
 import React from "react";
 
+import { getChargesUrl } from "../chargesUrl";
 import { getComputeSchema, getComputeValidator } from "../validators";
 import Notify, { AccountUser } from "./Notify";
 import QueuesTable from "./QueuesTable";
@@ -364,19 +365,7 @@ export class ComputeForm extends React.Component<ComputeFormProps, ComputeFormSt
     getURLForChargesPerJodID(jid: string) {
         const { account } = this.props;
 
-        // @ts-ignore
-        if (typeof Router !== "undefined") {
-            // @ts-ignore
-            return Router.url(
-                "billing",
-                {
-                    accountSlug: account?.slug,
-                    tab: "charges",
-                },
-                { query: { jid } },
-            );
-        }
-        return `#billing/${account?.slug || "default"}/charges?jid=${jid}`;
+        return getChargesUrl(account?.slug, jid);
     }
 
     getNode = () => {
