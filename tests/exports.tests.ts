@@ -47,6 +47,11 @@ test("dist/exports.js declares ComputeForm export", () => {
     assert.ok(content.includes("ComputeForm"), "exports.js should reference ComputeForm");
 });
 
+test("dist/exports.js declares setChargesUrlResolver export", () => {
+    const content = fs.readFileSync(exportsJsPath, "utf-8");
+    assert.ok(content.includes("setChargesUrlResolver"), "exports.js should reference setChargesUrlResolver");
+});
+
 test("dist/exports.d.ts declares QueuesTable type export", () => {
     const content = fs.readFileSync(exportsDtsPath, "utf-8");
     assert.ok(content.includes("QueuesTable"), "exports.d.ts should reference QueuesTable");
